@@ -158,7 +158,7 @@ class SQLiteRepository:
         )
 
         await conn.commit()
-        return cursor.lastrowid
+        return cursor.lastrowid or 0
 
     async def get_document(self, doc_id: int) -> dict[str, Any] | None:
         """Get document by ID."""
@@ -200,7 +200,7 @@ class SQLiteRepository:
                 ORDER BY score
                 LIMIT ?
             """
-            params = (query, manufacturer, limit)
+            params: tuple[Any, ...] = (query, manufacturer, limit)
         else:
             sql = """
                 SELECT d.*, bm25(documents_fts) as score
@@ -250,7 +250,7 @@ class SQLiteRepository:
         )
 
         await conn.commit()
-        return cursor.lastrowid
+        return cursor.lastrowid or 0
 
     async def get_fault_code(
         self,

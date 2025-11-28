@@ -14,11 +14,13 @@ import logging
 import time
 import uuid
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
 
 from liftlogic.config.errors import ErrorCode, LiftLogicError
 
@@ -28,7 +30,9 @@ logger = logging.getLogger(__name__)
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """Attach request ID for tracing across logs and responses."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
 
         # Store in request state for access in handlers
@@ -43,7 +47,9 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 class LatencyMiddleware(BaseHTTPMiddleware):
     """Track and log request latency."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         start_time = time.perf_counter()
 
         response = await call_next(request)
@@ -68,7 +74,9 @@ class LatencyMiddleware(BaseHTTPMiddleware):
 class ErrorHandlerMiddleware(BaseHTTPMiddleware):
     """Convert LiftLogicError exceptions to structured JSON responses."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         try:
             return await call_next(request)
         except LiftLogicError as e:
@@ -105,12 +113,16 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Simple in-memory rate limiting per client IP."""
 
-    def __init__(self, app, requests_per_minute: int = 60):
+    def __init__(self, app: ASGIApp, requests_per_minute: int = 60) -> None:
         super().__init__(app)
         self.requests_per_minute = requests_per_minute
-        self.buckets: dict[str, dict] = defaultdict(lambda: {"window": 0, "tokens": 0})
+        self.buckets: dict[str, dict[str, Any]] = defaultdict(
+            lambda: {"window": 0, "tokens": 0}
+        )
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         # Skip rate limiting for health checks
         if request.url.path == "/health":
             return await call_next(request)

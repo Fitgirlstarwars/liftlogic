@@ -4,7 +4,7 @@ Diagnosis Contracts - Interfaces for diagnosis domain.
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from .models import DiagnosisMode, FaultDiagnosis, MaintenanceTask, SafetyRisk
 
@@ -17,7 +17,7 @@ class DiagnosisAgent(Protocol):
         self,
         fault_code: str,
         symptoms: list[str] | None = None,
-        context: dict | None = None,
+        context: dict[str, Any] | None = None,
         mode: DiagnosisMode = DiagnosisMode.DETAILED,
     ) -> FaultDiagnosis:
         """
@@ -60,7 +60,7 @@ class SafetyAnalyzer(Protocol):
         self,
         document_content: str,
         standards: list[str] | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Audit document for compliance with safety standards.
 
@@ -80,8 +80,8 @@ class MaintenancePlanner(Protocol):
 
     async def generate_schedule(
         self,
-        components: list[dict],
-        usage_data: dict | None = None,
+        components: list[dict[str, Any]],
+        usage_data: dict[str, Any] | None = None,
     ) -> list[MaintenanceTask]:
         """
         Generate maintenance schedule for components.
@@ -98,7 +98,7 @@ class MaintenancePlanner(Protocol):
     async def prioritize_tasks(
         self,
         tasks: list[MaintenanceTask],
-        constraints: dict | None = None,
+        constraints: dict[str, Any] | None = None,
     ) -> list[MaintenanceTask]:
         """
         Prioritize maintenance tasks.

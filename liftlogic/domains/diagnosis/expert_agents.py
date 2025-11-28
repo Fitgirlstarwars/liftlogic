@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from .models import (
     ConsensusResult,
@@ -57,7 +57,7 @@ class FaultDiagnosisAgent:
         self,
         fault_code: str,
         symptoms: list[str] | None = None,
-        context: dict | None = None,
+        context: dict[str, Any] | None = None,
         mode: DiagnosisMode = DiagnosisMode.DETAILED,
     ) -> FaultDiagnosis:
         """Diagnose a fault code with context."""
@@ -103,7 +103,7 @@ class FaultDiagnosisAgent:
         self,
         fault_code: str,
         symptoms: list[str],
-        context: dict,
+        context: dict[str, Any],
         mode: DiagnosisMode,
         graph_context: str,
     ) -> str:
@@ -144,7 +144,7 @@ Focus on most likely cause and primary remedy."""
 
         return base_prompt
 
-    def _get_diagnosis_schema(self) -> dict:
+    def _get_diagnosis_schema(self) -> dict[str, Any]:
         """Get JSON schema for diagnosis response."""
         return {
             "type": "object",
@@ -185,7 +185,7 @@ Focus on most likely cause and primary remedy."""
     def _parse_diagnosis_response(
         self,
         fault_code: str,
-        response: dict,
+        response: dict[str, Any],
     ) -> FaultDiagnosis:
         """Parse LLM response into FaultDiagnosis."""
         severity_map = {
@@ -301,7 +301,7 @@ For each risk provide:
         self,
         document_content: str,
         standards: list[str] | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Audit document for standards compliance."""
         standards = standards or ["EN81", "ASME A17.1", "ISO 8100"]
 
@@ -362,8 +362,8 @@ class MaintenanceAgent:
 
     async def generate_schedule(
         self,
-        components: list[dict],
-        usage_data: dict | None = None,
+        components: list[dict[str, Any]],
+        usage_data: dict[str, Any] | None = None,
     ) -> list[MaintenanceTask]:
         """Generate maintenance schedule for components."""
         usage_data = usage_data or {}
@@ -445,7 +445,7 @@ For each component, recommend:
     async def prioritize_tasks(
         self,
         tasks: list[MaintenanceTask],
-        constraints: dict | None = None,
+        constraints: dict[str, Any] | None = None,
     ) -> list[MaintenanceTask]:
         """Prioritize maintenance tasks based on constraints."""
         constraints = constraints or {}
@@ -487,7 +487,7 @@ class ExpertConsensus:
         self,
         fault_code: str,
         symptoms: list[str] | None = None,
-        context: dict | None = None,
+        context: dict[str, Any] | None = None,
     ) -> ConsensusResult:
         """Get consensus diagnosis from multiple experts."""
         opinions: list[ExpertOpinion] = []

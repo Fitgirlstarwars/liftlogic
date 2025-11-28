@@ -93,6 +93,7 @@ class FAISSIndex:
         """
         if self._index is None:
             await self.initialize()
+        assert self._index is not None  # Guaranteed by initialize()
 
         vectors = np.ascontiguousarray(vectors.astype("float32"))
 
@@ -179,10 +180,11 @@ class FAISSIndex:
         }
         await asyncio.to_thread(self._write_json, metadata_path, metadata)
 
-        logger.info("Index saved to %s (%d vectors)", path, self._index.ntotal)
+        ntotal = self._index.ntotal if self._index else 0
+        logger.info("Index saved to %s (%d vectors)", path, ntotal)
 
     @staticmethod
-    def _write_json(path: Path, data: dict) -> None:
+    def _write_json(path: Path, data: dict[str, Any]) -> None:
         """Write JSON file (sync helper for to_thread)."""
         with open(path, "w") as f:
             json.dump(data, f)
@@ -209,13 +211,15 @@ class FAISSIndex:
         self._is_trained = data["is_trained"]
         self._metadata = data["metadata"]
 
-        logger.info("Index loaded from %s (%d vectors)", path, self._index.ntotal)
+        ntotal = self._index.ntotal if self._index else 0
+        logger.info("Index loaded from %s (%d vectors)", path, ntotal)
 
     @staticmethod
-    def _read_json(path: Path) -> dict:
+    def _read_json(path: Path) -> dict[str, Any]:
         """Read JSON file (sync helper for to_thread)."""
         with open(path) as f:
-            return json.load(f)
+            result: dict[str, Any] = json.load(f)
+            return result
 
     @property
     def size(self) -> int:

@@ -119,7 +119,7 @@ class ResponseCacheImpl:
 
         logger.debug("Evicted %d oldest cache entries", evict_count)
 
-    def stats(self) -> dict:
+    def stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total_hits = sum(e.hit_count for e in self._cache.values())
         by_type: dict[str, int] = {}
@@ -135,7 +135,7 @@ class ResponseCacheImpl:
         }
 
     @staticmethod
-    def generate_key(query: str, context: dict | None = None) -> str:
+    def generate_key(query: str, context: dict[str, Any] | None = None) -> str:
         """Generate cache key from query and context."""
         # Normalize query
         normalized = query.lower().strip()

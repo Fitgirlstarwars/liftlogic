@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import networkx as nx
 
@@ -217,7 +217,7 @@ class KnowledgeGraphStore:
                 target=end_id,
                 cutoff=max_depth,
             ):
-                nodes = [self._nodes.get(nid) for nid in path_ids if nid in self._nodes]
+                nodes = [self._nodes[nid] for nid in path_ids if nid in self._nodes]
                 edges = []
 
                 for i in range(len(path_ids) - 1):
@@ -261,9 +261,9 @@ class KnowledgeGraphStore:
 
     async def build_from_extraction(
         self,
-        components: list[dict],
-        connections: list[dict],
-        fault_codes: list[dict],
+        components: list[dict[str, Any]],
+        connections: list[dict[str, Any]],
+        fault_codes: list[dict[str, Any]],
         document_id: str,
     ) -> None:
         """

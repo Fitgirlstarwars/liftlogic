@@ -226,14 +226,16 @@ class LLMService:
         import json
 
         try:
-            return json.loads(response.text)
+            result: dict[str, Any] = json.loads(response.text)
+            return result
         except json.JSONDecodeError:
             # Try to extract JSON from response
             text = response.text
             start = text.find("{")
             end = text.rfind("}") + 1
             if start >= 0 and end > start:
-                return json.loads(text[start:end])
+                result = json.loads(text[start:end])
+                return result
             raise
 
 

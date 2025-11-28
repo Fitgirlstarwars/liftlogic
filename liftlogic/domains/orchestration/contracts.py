@@ -79,7 +79,7 @@ class PipelineOrchestrator(Protocol):
     async def execute_with_context(
         self,
         query: Query,
-        context: dict,
+        context: dict[str, Any],
     ) -> PipelineResult:
         """
         Execute query with additional context.

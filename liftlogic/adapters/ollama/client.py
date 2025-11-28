@@ -88,8 +88,9 @@ class OllamaClient:
         response = await client.post("/api/generate", json=payload)
         response.raise_for_status()
 
-        data = response.json()
-        return data.get("response", "")
+        data: dict[str, Any] = response.json()
+        result: str = data.get("response", "")
+        return result
 
     async def stream_generate(
         self,
@@ -154,8 +155,10 @@ class OllamaClient:
         response = await client.post("/api/chat", json=payload)
         response.raise_for_status()
 
-        data = response.json()
-        return data.get("message", {}).get("content", "")
+        data: dict[str, Any] = response.json()
+        message: dict[str, Any] = data.get("message", {})
+        content: str = message.get("content", "")
+        return content
 
     async def list_models(self) -> list[str]:
         """List available models."""

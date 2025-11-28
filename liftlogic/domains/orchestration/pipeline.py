@@ -79,7 +79,7 @@ class QueryPipeline:
     async def execute_with_context(
         self,
         query: Query,
-        context: dict,
+        context: dict[str, Any],
     ) -> PipelineResult:
         """Execute query with additional context."""
         start_time = time.time()
@@ -140,7 +140,7 @@ class QueryPipeline:
                 response=response,
                 steps=steps,
                 total_duration_ms=total_duration,
-                model_used=self._llm.model if self._llm else "",
+                model_used=self._llm.config.model if self._llm else "",
                 sources=sources,
             )
 
@@ -157,7 +157,7 @@ class QueryPipeline:
     async def _execute_diagnosis(
         self,
         query: Query,
-        context: dict,
+        context: dict[str, Any],
         steps: list[PipelineStep],
     ) -> tuple[Any, list[str]]:
         """Execute fault diagnosis pipeline."""
@@ -217,7 +217,7 @@ class QueryPipeline:
     async def _execute_rag(
         self,
         query: Query,
-        context: dict,
+        context: dict[str, Any],
         steps: list[PipelineStep],
     ) -> tuple[Any, list[str]]:
         """Execute RAG search pipeline."""
@@ -278,7 +278,7 @@ class QueryPipeline:
     async def _execute_safety(
         self,
         query: Query,
-        context: dict,
+        context: dict[str, Any],
         steps: list[PipelineStep],
     ) -> tuple[Any, list[str]]:
         """Execute safety analysis pipeline."""
@@ -311,7 +311,7 @@ class QueryPipeline:
     async def _execute_simple(
         self,
         query: Query,
-        context: dict,
+        context: dict[str, Any],
         steps: list[PipelineStep],
     ) -> tuple[Any, list[str]]:
         """Execute simple conversational pipeline."""
