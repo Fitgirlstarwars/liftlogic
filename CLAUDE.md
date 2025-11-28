@@ -1,5 +1,11 @@
 # LiftLogic - AI-Native Elevator Intelligence System
 
+## Production URLs
+- **Live Site:** https://arprofm.com
+- **Tech Portal:** https://arprofm.com/app
+- **GitHub:** https://github.com/Fitgirlstarwars/liftlogic
+- **Render:** https://dashboard.render.com (fitgirlstarwars@gmail.com)
+
 ## Quick Context
 - **What**: PDF extraction → hybrid search → fault diagnosis for elevator technicians
 - **Stack**: Python 3.11+, FastAPI, Gemini 2.0 (OAuth/ADC), FAISS, Neo4j, React/TypeScript
@@ -120,3 +126,4 @@ python3 tools/import_data.py # Import pre-processed data
 @.ai/TESTING.md
 @.ai/WORKFLOWS.md
 @.ai/SETUP.md
+@.ai/DEPLOYMENT.md
