@@ -81,3 +81,7 @@ asyncio_mode = "auto"
 testpaths = ["liftlogic"]
 python_files = "test_*.py"
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore:.*asyncio.iscoroutinefunction.*:DeprecationWarning",
+    "ignore:.*builtin type Swig.*has no __module__ attribute:DeprecationWarning",
+]
