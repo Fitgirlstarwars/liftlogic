@@ -23,7 +23,6 @@ jobs:
 
   typecheck:
     runs-on: ubuntu-latest
-    continue-on-error: true  # TODO: Fix 119 type errors, then remove this
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
