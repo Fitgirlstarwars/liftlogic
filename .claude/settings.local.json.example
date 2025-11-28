@@ -1,0 +1,8 @@
+{
+  "$schema": "https://claude.ai/schemas/claude-code-settings.json",
+  "_comment": "Copy this file to settings.local.json for personal preferences (git-ignored)",
+  "model": "opus",
+  "env": {
+    "PYTHONPATH": "/Users/YOUR_USERNAME/Desktop/liftlogic"
+  }
+}

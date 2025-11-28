@@ -1,0 +1,119 @@
+<svg width="700" height="1000" viewBox="0 0 700 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Modern Escalator Illustration - Ascending -->
+  <!-- Professional, clean design with transparent background -->
+
+  <!-- Escalator Structure -->
+  <g id="escalator-ascending">
+    <!-- Base platform (bottom) -->
+    <rect x="50" y="850" width="200" height="120" rx="10" fill="#e5e3ff" stroke="#9891ff" stroke-width="3"/>
+
+    <!-- Top platform -->
+    <rect x="450" y="50" width="200" height="120" rx="10" fill="#e5e3ff" stroke="#9891ff" stroke-width="3"/>
+
+    <!-- Main escalator body -->
+    <g id="escalator-body" transform="rotate(-35 350 500)">
+      <!-- Main structure -->
+      <rect x="150" y="300" width="400" height="400" rx="15" fill="url(#escalatorGradient)" stroke="#9891ff" stroke-width="4"/>
+
+      <!-- Side panels -->
+      <rect x="155" y="310" width="30" height="380" rx="5" fill="#cdcbd0"/>
+      <rect x="515" y="310" width="30" height="380" rx="5" fill="#cdcbd0"/>
+
+      <!-- Handrail (left) -->
+      <ellipse cx="170" cy="305" rx="15" ry="8" fill="#4d4c51"/>
+      <rect x="155" y="305" width="30" height="390" fill="#4d4c51"/>
+      <ellipse cx="170" cy="695" rx="15" ry="8" fill="#4d4c51"/>
+
+      <!-- Handrail (right) -->
+      <ellipse cx="530" cy="305" rx="15" ry="8" fill="#4d4c51"/>
+      <rect x="515" y="305" width="30" height="390" fill="#4d4c51"/>
+      <ellipse cx="530" cy="695" rx="15" ry="8" fill="#4d4c51"/>
+
+      <!-- Steps (ascending) -->
+      <g id="steps">
+        <!-- Step 1 (bottom) -->
+        <rect x="200" y="640" width="300" height="40" rx="3" fill="#9891ff" stroke="#4d4c51" stroke-width="2"/>
+        <line x1="200" y1="660" x2="500" y2="660" stroke="#4d4c51" stroke-width="1" opacity="0.3"/>
+
+        <!-- Step 2 -->
+        <rect x="200" y="590" width="300" height="40" rx="3" fill="#b7b2ff" stroke="#4d4c51" stroke-width="2"/>
+        <line x1="200" y1="610" x2="500" y2="610" stroke="#4d4c51" stroke-width="1" opacity="0.3"/>
+
+        <!-- Step 3 -->
+        <rect x="200" y="540" width="300" height="40" rx="3" fill="#9891ff" stroke="#4d4c51" stroke-width="2"/>
+        <line x1="200" y1="560" x2="500" y2="560" stroke="#4d4c51" stroke-width="1" opacity="0.3"/>
+
+        <!-- Step 4 -->
+        <rect x="200" y="490" width="300" height="40" rx="3" fill="#b7b2ff" stroke="#4d4c51" stroke-width="2"/>
+        <line x1="200" y1="510" x2="500" y2="510" stroke="#4d4c51" stroke-width="1" opacity="0.3"/>
+
+        <!-- Step 5 -->
+        <rect x="200" y="440" width="300" height="40" rx="3" fill="#9891ff" stroke="#4d4c51" stroke-width="2"/>
+        <line x1="200" y1="460" x2="500" y2="460" stroke="#4d4c51" stroke-width="1" opacity="0.3"/>
+
+        <!-- Step 6 -->
+        <rect x="200" y="390" width="300" height="40" rx="3" fill="#b7b2ff" stroke="#4d4c51" stroke-width="2"/>
+        <line x1="200" y1="410" x2="500" y2="410" stroke="#4d4c51" stroke-width="1" opacity="0.3"/>
+
+        <!-- Step 7 (top) -->
+        <rect x="200" y="340" width="300" height="40" rx="3" fill="#9891ff" stroke="#4d4c51" stroke-width="2"/>
+        <line x1="200" y1="360" x2="500" y2="360" stroke="#4d4c51" stroke-width="1" opacity="0.3"/>
+      </g>
+
+      <!-- Decorative grooves on steps -->
+      <g id="step-grooves" opacity="0.5">
+        <line x1="220" y1="345" x2="220" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="250" y1="345" x2="250" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="280" y1="345" x2="280" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="310" y1="345" x2="310" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="340" y1="345" x2="340" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="370" y1="345" x2="370" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="400" y1="345" x2="400" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="430" y1="345" x2="430" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="460" y1="345" x2="460" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+        <line x1="480" y1="345" x2="480" y2="675" stroke="#4d4c51" stroke-width="1" stroke-dasharray="2,8"/>
+      </g>
+    </g>
+
+    <!-- Direction arrow (ascending) -->
+    <g id="arrow-up">
+      <polygon points="600,200 570,240 630,240" fill="#FFD850"/>
+      <rect x="585" y="225" width="30" height="80" fill="#FFD850"/>
+      <text x="600" y="340" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFD850" text-anchor="middle">UP</text>
+    </g>
+
+    <!-- Safety sign -->
+    <g id="safety-sign" opacity="0.8">
+      <circle cx="120" cy="200" r="40" fill="#ffffff" stroke="#9891ff" stroke-width="3"/>
+      <path d="M120,180 L120,210" stroke="#9891ff" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="120" cy="225" r="4" fill="#9891ff"/>
+    </g>
+
+    <!-- Motion lines (indicating movement) -->
+    <g id="motion-lines" opacity="0.4">
+      <line x1="80" y1="700" x2="140" y2="700" stroke="#9891ff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="90" y1="720" x2="160" y2="720" stroke="#9891ff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="100" y1="740" x2="180" y2="740" stroke="#9891ff" stroke-width="3" stroke-linecap="round"/>
+
+      <line x1="520" y1="250" x2="580" y2="250" stroke="#9891ff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="510" y1="270" x2="570" y2="270" stroke="#9891ff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="500" y1="290" x2="560" y2="290" stroke="#9891ff" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- Decorative stars (movement effect) -->
+    <g id="stars" opacity="0.6">
+      <polygon points="650,450 655,460 665,460 657,467 660,477 650,470 640,477 643,467 635,460 645,460" fill="#FFD850"/>
+      <polygon points="30,550 35,560 45,560 37,567 40,577 30,570 20,577 23,567 15,560 25,560" fill="#9891ff"/>
+      <polygon points="620,750 625,760 635,760 627,767 630,777 620,770 610,777 613,767 605,760 615,760" fill="#FF6680"/>
+    </g>
+  </g>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="escalatorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f7f4f2;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e5e3ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

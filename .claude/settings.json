@@ -1,0 +1,42 @@
+{
+  "$schema": "https://claude.ai/schemas/claude-code-settings.json",
+  "model": "opus",
+  "permissions": {
+    "allow": [
+      "Bash(pytest:*)",
+      "Bash(mypy:*)",
+      "Bash(ruff:*)",
+      "Bash(black:*)",
+      "Bash(liftlogic:*)",
+      "Bash(uvicorn:*)",
+      "Bash(pip:*)",
+      "Bash(python:*)",
+      "Bash(npm:*)",
+      "Bash(git:*)",
+      "Read",
+      "Write",
+      "Edit"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(sudo:*)",
+      "Write(**/.env)",
+      "Write(**/.env.local)",
+      "Write(**/secrets/**)",
+      "Write(**/*.pem)",
+      "Write(**/*credentials*)"
+    ],
+    "ask": [
+      "Bash(pip install * --upgrade)",
+      "Bash(docker *)",
+      "Bash(git push *)"
+    ]
+  },
+  "env": {
+    "PYTHONPATH": "/Users/fender/Desktop/liftlogic",
+    "ANTHROPIC_MODEL": "claude-opus-4-5-20251101",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-5-20251101",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-5-20250929",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5-20251001"
+  }
+}

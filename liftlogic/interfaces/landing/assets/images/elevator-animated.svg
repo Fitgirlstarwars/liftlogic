@@ -1,0 +1,106 @@
+<svg width="600" height="1000" viewBox="0 0 600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Modern Elevator Illustration -->
+  <!-- Professional, clean design with transparent background -->
+
+  <!-- Elevator Shaft Background -->
+  <rect x="150" y="50" width="300" height="900" rx="20" fill="#f0f0f0" opacity="0.3"/>
+
+  <!-- Elevator Cabin -->
+  <g id="elevator-cabin">
+    <!-- Main cabin body -->
+    <rect x="170" y="400" width="260" height="350" rx="15" fill="url(#elevatorGradient)" stroke="#9891ff" stroke-width="4"/>
+
+    <!-- Glass panel -->
+    <rect x="190" y="420" width="220" height="250" rx="10" fill="url(#glassGradient)" opacity="0.6"/>
+
+    <!-- Door line -->
+    <line x1="300" y1="420" x2="300" y2="670" stroke="#9891ff" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Control panel -->
+    <g id="control-panel">
+      <rect x="195" y="690" width="210" height="50" rx="8" fill="#4d4c51"/>
+
+      <!-- Buttons -->
+      <circle cx="220" cy="705" r="6" fill="#9891ff"/>
+      <circle cx="250" cy="705" r="6" fill="#9891ff"/>
+      <circle cx="280" cy="705" r="6" fill="#9891ff"/>
+      <circle cx="310" cy="705" r="6" fill="#9891ff"/>
+      <circle cx="340" cy="705" r="6" fill="#9891ff"/>
+      <circle cx="370" cy="705" r="6" fill="#9891ff"/>
+
+      <circle cx="220" cy="725" r="6" fill="#9891ff"/>
+      <circle cx="250" cy="725" r="6" fill="#9891ff"/>
+      <circle cx="280" cy="725" r="6" fill="#FFD850"/>
+      <circle cx="310" cy="725" r="6" fill="#9891ff"/>
+      <circle cx="340" cy="725" r="6" fill="#9891ff"/>
+      <circle cx="370" cy="725" r="6" fill="#9891ff"/>
+    </g>
+
+    <!-- Floor indicator -->
+    <rect x="250" y="380" width="100" height="40" rx="8" fill="#1a1625"/>
+    <text x="300" y="407" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#9891ff" text-anchor="middle">3</text>
+
+    <!-- Handrails -->
+    <rect x="175" y="550" width="8" height="100" rx="4" fill="#cdcbd0"/>
+    <rect x="417" y="550" width="8" height="100" rx="4" fill="#cdcbd0"/>
+
+    <!-- Shadow/depth -->
+    <rect x="170" y="745" width="260" height="10" rx="5" fill="#1a1625" opacity="0.2"/>
+  </g>
+
+  <!-- Direction arrow (up) -->
+  <g id="arrow-up">
+    <polygon points="300,120 280,160 320,160" fill="#9891ff" opacity="0.8"/>
+    <rect x="290" y="145" width="20" height="60" fill="#9891ff" opacity="0.8"/>
+  </g>
+
+  <!-- Floor level markers -->
+  <g id="floor-markers" opacity="0.5">
+    <!-- Floor 5 -->
+    <line x1="120" y1="150" x2="140" y2="150" stroke="#4d4c51" stroke-width="3"/>
+    <text x="110" y="155" font-family="Arial, sans-serif" font-size="18" fill="#4d4c51" text-anchor="end">5</text>
+
+    <!-- Floor 4 -->
+    <line x1="120" y1="300" x2="140" y2="300" stroke="#4d4c51" stroke-width="3"/>
+    <text x="110" y="305" font-family="Arial, sans-serif" font-size="18" fill="#4d4c51" text-anchor="end">4</text>
+
+    <!-- Floor 3 - Current -->
+    <line x1="120" y1="450" x2="140" y2="450" stroke="#9891ff" stroke-width="4"/>
+    <text x="110" y="455" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#9891ff" text-anchor="end">3</text>
+
+    <!-- Floor 2 -->
+    <line x1="120" y1="600" x2="140" y2="600" stroke="#4d4c51" stroke-width="3"/>
+    <text x="110" y="605" font-family="Arial, sans-serif" font-size="18" fill="#4d4c51" text-anchor="end">2</text>
+
+    <!-- Floor 1 -->
+    <line x1="120" y1="750" x2="140" y2="750" stroke="#4d4c51" stroke-width="3"/>
+    <text x="110" y="755" font-family="Arial, sans-serif" font-size="18" fill="#4d4c51" text-anchor="end">1</text>
+
+    <!-- Ground -->
+    <line x1="120" y1="900" x2="140" y2="900" stroke="#4d4c51" stroke-width="3"/>
+    <text x="110" y="905" font-family="Arial, sans-serif" font-size="18" fill="#4d4c51" text-anchor="end">G</text>
+  </g>
+
+  <!-- Decorative elements -->
+  <g id="decorative" opacity="0.3">
+    <!-- Cables -->
+    <line x1="240" y1="50" x2="240" y2="400" stroke="#4d4c51" stroke-width="2" stroke-dasharray="5,5"/>
+    <line x1="260" y1="50" x2="260" y2="400" stroke="#4d4c51" stroke-width="2" stroke-dasharray="5,5"/>
+    <line x1="340" y1="50" x2="340" y2="400" stroke="#4d4c51" stroke-width="2" stroke-dasharray="5,5"/>
+    <line x1="360" y1="50" x2="360" y2="400" stroke="#4d4c51" stroke-width="2" stroke-dasharray="5,5"/>
+  </g>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="elevatorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e5e3ff;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#66B3FF;stop-opacity:0.2" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#66B3FF;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+</svg>

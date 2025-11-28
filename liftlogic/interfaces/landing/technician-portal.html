@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician Portal - ARPRO</title>
+    <meta name="description" content="ARPRO Technician Portal - Secure login for authorized technicians">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/arpro-logo.png">
+
+    <style>
+        :root {
+            --color-primary: #3b82f6;
+            --color-primary-dark: #2563eb;
+            --color-primary-light: #60a5fa;
+            --color-grey-900: #0f172a;
+            --color-grey-800: #1e293b;
+            --color-grey-700: #334155;
+            --color-grey-600: #475569;
+            --color-grey-500: #64748b;
+            --color-grey-400: #94a3b8;
+            --color-grey-300: #cbd5e1;
+            --color-grey-200: #e2e8f0;
+            --color-grey-100: #f1f5f9;
+            --color-grey-50: #f8fafc;
+            --color-white: #ffffff;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--color-grey-900) 0%, var(--color-grey-800) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-logo {
+            height: 60px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: brightness(0) invert(1);
+        }
+
+        .login-header h1 {
+            color: var(--color-white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+        }
+
+        .login-form {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-grey-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            color: var(--color-grey-900);
+            background: var(--color-white);
+            border: 2px solid var(--color-grey-300);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--color-grey-400);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-grey-500);
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-password:hover {
+            color: var(--color-primary);
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .form-checkbox label {
+            font-size: 0.875rem;
+            color: var(--color-grey-700);
+            cursor: pointer;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-white);
+            background: var(--color-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .login-button:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            padding: 0 2rem 2rem;
+            text-align: center;
+        }
+
+        .forgot-password {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--color-grey-600);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .back-home:hover {
+            background: var(--color-grey-100);
+            color: var(--color-grey-900);
+        }
+
+        .error-message {
+            display: none;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: var(--radius-md);
+            color: var(--color-error);
+            font-size: 0.875rem;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                border-radius: 0;
+            }
+
+            .login-header {
+                padding: 1.5rem;
+            }
+
+            .login-form {
+                padding: 1.5rem;
+            }
+
+            .login-footer {
+                padding: 0 1.5rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="assets/images/arpro-logo.png" alt="ARPRO Logo" class="login-logo">
+            <h1>Technician Portal</h1>
+            <p>Secure access for authorized technicians</p>
+        </div>
+
+        <form class="login-form" id="loginForm">
+            <div class="error-message" id="errorMessage">
+                Invalid credentials. Please try again.
+            </div>
+
+            <div class="form-group">
+                <label for="username" class="form-label">Username or Email</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-input"
+                    placeholder="Enter your username"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="password-wrapper">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Toggle password visibility">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path id="eyeIcon" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle id="eyeCircle" cx="12" cy="12" r="3"></circle>
+                            <line id="eyeSlash" x1="1" y1="1" x2="23" y2="23" style="display: none;"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-checkbox">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Remember me on this device</label>
+            </div>
+
+            <button type="submit" class="login-button">
+                <span>Sign In</span>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <a href="#" class="forgot-password">Forgot password?</a>
+            <br>
+            <a href="index.html" class="back-home">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                </svg>
+                <span>Back to home</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeSlash = document.getElementById('eyeSlash');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            eyeSlash.style.display = type === 'password' ? 'none' : 'block';
+        });
+
+        // Handle form submission
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // This is a demo - in production, this would connect to your authentication system
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Show error for demo purposes
+            errorMessage.classList.add('active');
+
+            // In production, you would send credentials to your server:
+            // fetch('/api/login', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ username, password })
+            // }).then(response => response.json())
+            //   .then(data => { ... })
+        });
+    </script>
+</body>
+</html>

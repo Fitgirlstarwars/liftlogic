@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+    <meta name="referrer" content="origin-when-cross-origin" />    
+    <title>Eddie - Eddie</title>
+    <meta name="description" content=""/>
+
+    <meta property="fb:app_id" content="">
+    <meta property="og:url" content="https://eddie.eco/static/fonts/founders-grotesk-regular.woff"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="Eddie - Eddie"/>
+    <meta property="og:image" content=""/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="630"/>
+    <meta property="og:description" content=""/>
+    <meta property="og:site_name" content="Eddie"/>
+    <meta property="og:locale" content="fr_CA"/>
+    <meta property="og:locale:alternate" content="fr_CA"/>
+    <meta property="og:locale:alternate" content="en_CA"/>
+    
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:site" content=""/>
+    <meta name="twitter:url" content="https://eddie.eco/static/fonts/founders-grotesk-regular.woff"/>
+    <meta name="twitter:title" content="Eddie - Eddie"/>
+    <meta name="twitter:description" content=""/>
+    <meta name="twitter:image" content=""/>
+
+    
+    <link rel="home" href="https://eddie.eco/"/>
+    <link rel="canonical" href="https://eddie.eco/static/fonts/founders-grotesk-regular.woff">
+    
+    
+<meta name="application-name" content="Eddie"/>
+<meta name="theme-color" content="#ffffff">
+<link rel="shortcut icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" href="/static/favicons/apple-touch-icon.png" type="image/png">
+<link rel="icon" href="/static/favicons/favicon.svg" type="image/svg+xml">
+<link rel="mask-icon" href="/static/favicons/mask-icon.svg" color="#b7b2ff">
+<link rel="apple-touch-icon" href="/static/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="manifest" href="/static/favicons/site.webmanifest">
+</head>
+<body>
+
+    <div id="app"></div>
+
+    <script>
+        window.arepa = {
+            name: "Arepa",
+            edition: "Craft CMS",
+            version: "1.0.0-alpha.16",
+            __data__ : {
+                "seo": {
+                    "title": "Eddie - Eddie",
+                    "description": ""
+                },                                
+                "currentSite": {
+                    "baseUrl": "/",
+                    "id": "1",
+                    "handle": "fr_ca",
+                    "locale": "fr-CA",
+                    "language": "fr-CA",
+                    "languageID": "fr"
+                },
+                
+                "sites": [{
+                    "url": "https://eddie.eco/",
+                    "baseUrl": "/",
+                    "id": "1",
+                    "name": "Français",
+                    "locale": "fr-CA",
+                    "handle": "fr_ca",
+                    "language": "fr-CA",
+                    "languageID": "fr"
+                },{
+                    "url": "https://eddie.eco/en/",
+                    "baseUrl": "/en/",
+                    "id": "2",
+                    "name": "English",
+                    "locale": "en-CA",
+                    "handle": "en_ca",
+                    "language": "en-CA",
+                    "languageID": "en"
+                }]
+            }
+        }
+    </script>
+
+    <script type="module">!function(){const e=document.createElement("link").relList;if(!(e&&e.supports&&e.supports("modulepreload"))){for(const e of document.querySelectorAll('link[rel="modulepreload"]'))r(e);new MutationObserver((e=>{for(const o of e)if("childList"===o.type)for(const e of o.addedNodes)if("LINK"===e.tagName&&"modulepreload"===e.rel)r(e);else if(e.querySelectorAll)for(const o of e.querySelectorAll("link[rel=modulepreload]"))r(o)})).observe(document,{childList:!0,subtree:!0})}function r(e){if(e.ep)return;e.ep=!0;const r=function(e){const r={};return e.integrity&&(r.integrity=e.integrity),e.referrerpolicy&&(r.referrerPolicy=e.referrerpolicy),"use-credentials"===e.crossorigin?r.credentials="include":"anonymous"===e.crossorigin?r.credentials="omit":r.credentials="same-origin",r}(e);fetch(e.href,r)}}();</script>
+<script type="module" src="https://eddie.eco/dist/assets/app-AD_RWzme.js" crossorigin onload="e=new CustomEvent(&#039;vite-script-loaded&#039;, {detail:{path: &#039;src/main.ts&#039;}});document.dispatchEvent(e);"></script>
+<link href="https://eddie.eco/dist/assets/app-WUrsnPKK.css" rel="stylesheet" media="print" onload="this.media=&#039;all&#039;"><script type="text/javascript">
+        window.csrfTokenName = "AREPA_CSRF_TOKEN";
+        window.csrfTokenValue = "m67kmUjvavsxTE3mcNiYVRoNdqa8vWrJnHs0p6oeC5aTpFsp4NIGlav2s_V4mhOjWXkVojyuq2JNYCf38c078fJLcOTeekLJ9ZUsUKWIY9g\u003D";
+    </script></body>
+</html>

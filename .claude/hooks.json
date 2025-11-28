@@ -1,0 +1,52 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'File written - remember to update __init__.py exports if adding new public APIs'"
+          }
+        ]
+      },
+      {
+        "matcher": "Write(**/*.py)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/fender/Desktop/liftlogic && ruff check --fix $CLAUDE_FILE_PATH 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "cd /Users/fender/Desktop/liftlogic && ruff format $CLAUDE_FILE_PATH 2>/dev/null || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit(**/*.py)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/fender/Desktop/liftlogic && ruff check --fix $CLAUDE_FILE_PATH 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "cd /Users/fender/Desktop/liftlogic && ruff format $CLAUDE_FILE_PATH 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write(**/.env*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'WARNING: Attempting to write to .env file - this should be denied by permissions'"
+          }
+        ]
+      }
+    ]
+  }
+}
