@@ -18,12 +18,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Python dependencies and install
-COPY pyproject.toml ./
+COPY pyproject.toml README.md ./
 COPY liftlogic/ ./liftlogic/
 COPY tools/ ./tools/
 
 # Install the package
-RUN pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir .
 
 # Copy landing page
 COPY liftlogic/interfaces/landing/ ./liftlogic/interfaces/landing/
