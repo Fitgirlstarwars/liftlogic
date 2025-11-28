@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Search,
   Activity,
@@ -32,7 +32,37 @@ import {
   RotateCcw,
   Brain,
   Layers,
+  CheckCircle,
+  Lock,
+  Unlock,
 } from "lucide-react";
+
+// ============ RECOGNIZED TERMS FOR SMART FILTERS ============
+const RECOGNIZED_MANUFACTURERS = [
+  { id: "kone", name: "KONE", aliases: ["kone", "Kone", "KONE"] },
+  { id: "otis", name: "OTIS", aliases: ["otis", "Otis", "OTIS"] },
+  { id: "schindler", name: "Schindler", aliases: ["schindler", "Schindler", "SCHINDLER"] },
+  { id: "thyssenkrupp", name: "ThyssenKrupp", aliases: ["thyssenkrupp", "ThyssenKrupp", "thyssen", "TK", "tk"] },
+  { id: "mitsubishi", name: "Mitsubishi", aliases: ["mitsubishi", "Mitsubishi", "MITSUBISHI", "MELCO", "melco"] },
+  { id: "fujitec", name: "Fujitec", aliases: ["fujitec", "Fujitec", "FUJITEC"] },
+  { id: "hyundai", name: "Hyundai", aliases: ["hyundai", "Hyundai", "HYUNDAI"] },
+  { id: "hitachi", name: "Hitachi", aliases: ["hitachi", "Hitachi", "HITACHI"] },
+  { id: "toshiba", name: "Toshiba", aliases: ["toshiba", "Toshiba", "TOSHIBA"] },
+];
+
+const RECOGNIZED_EQUIPMENT = [
+  { id: "elevator", name: "Elevator", aliases: ["elevator", "Elevator", "ELEVATOR", "lift", "Lift", "LIFT", "L", "l"] },
+  { id: "escalator", name: "Escalator", aliases: ["escalator", "Escalator", "ESCALATOR", "E", "e"] },
+];
+
+interface SearchFilter {
+  type: "manufacturer" | "equipment";
+  id: string;
+  name: string;
+  locked: boolean;
+}
+
+const FILTER_STORAGE_KEY = "LIFT_LOGIC_LOCKED_FILTERS";
 import { FaultRecord, ViewMode, AIConfig, DriveUser } from "./types/index";
 import {
   identifyFaultFromQuery,
@@ -83,10 +113,11 @@ function App() {
   const [showAuthConfig, setShowAuthConfig] = useState(false);
   const [clientId, setClientId] = useState(DEFAULT_CLIENT_ID);
 
-  // Model Selection State for Main UI
-  const [quickMode, setQuickMode] = useState<
-    "SPEED" | "REASONING" | "CONSENSUS"
-  >("SPEED");
+  // Progressive Research Depth State
+  const [researchDepth, setResearchDepth] = useState<"quick" | "deep" | "verified">("quick");
+  const [isDeepening, setIsDeepening] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [lastSearchQuery, setLastSearchQuery] = useState("");
 
   const [view, setView] = useState<ViewMode>("SEARCH");
   const [searchQuery, setSearchQuery] = useState("");
@@ -113,6 +144,120 @@ function App() {
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+
+  // Smart Filter State
+  const [activeFilters, setActiveFilters] = useState<SearchFilter[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionMatches, setSuggestionMatches] = useState<
+    Array<{ type: "manufacturer" | "equipment"; id: string; name: string }>
+  >([]);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Load locked filters from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(FILTER_STORAGE_KEY);
+      if (stored) {
+        const lockedFilters: SearchFilter[] = JSON.parse(stored);
+        setActiveFilters(lockedFilters.filter((f) => f.locked));
+      }
+    } catch (e) {
+      console.error("Failed to load locked filters:", e);
+    }
+  }, []);
+
+  // Save locked filters to localStorage when they change
+  useEffect(() => {
+    const lockedFilters = activeFilters.filter((f) => f.locked);
+    if (lockedFilters.length > 0) {
+      localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(lockedFilters));
+    } else {
+      localStorage.removeItem(FILTER_STORAGE_KEY);
+    }
+  }, [activeFilters]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Detect recognized terms as user types
+  const detectRecognizedTerms = useCallback((input: string) => {
+    const words = input.split(/\s+/);
+    const lastWord = words[words.length - 1]?.toLowerCase();
+
+    if (!lastWord || lastWord.length < 1) {
+      setSuggestionMatches([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const matches: Array<{ type: "manufacturer" | "equipment"; id: string; name: string }> = [];
+
+    // Check manufacturers
+    for (const mfr of RECOGNIZED_MANUFACTURERS) {
+      if (mfr.aliases.some((alias) => alias.toLowerCase().startsWith(lastWord))) {
+        matches.push({ type: "manufacturer", id: mfr.id, name: mfr.name });
+      }
+    }
+
+    // Check equipment
+    for (const eq of RECOGNIZED_EQUIPMENT) {
+      if (eq.aliases.some((alias) => alias.toLowerCase().startsWith(lastWord))) {
+        matches.push({ type: "equipment", id: eq.id, name: eq.name });
+      }
+    }
+
+    // Filter out already active filters
+    const filtered = matches.filter(
+      (m) => !activeFilters.some((f) => f.id === m.id && f.type === m.type)
+    );
+
+    setSuggestionMatches(filtered);
+    setShowSuggestions(filtered.length > 0);
+  }, [activeFilters]);
+
+  // Handle selecting a suggestion
+  const handleSelectSuggestion = (match: { type: "manufacturer" | "equipment"; id: string; name: string }) => {
+    // Add as unlocked filter
+    setActiveFilters((prev) => [
+      ...prev,
+      { type: match.type, id: match.id, name: match.name, locked: false },
+    ]);
+
+    // Remove the matched word from search query
+    const words = searchQuery.split(/\s+/);
+    words.pop(); // Remove the partial match
+    setSearchQuery(words.join(" ") + (words.length > 0 ? " " : ""));
+
+    setShowSuggestions(false);
+    setSuggestionMatches([]);
+  };
+
+  // Toggle filter lock
+  const toggleFilterLock = (filterId: string, filterType: string) => {
+    setActiveFilters((prev) =>
+      prev.map((f) =>
+        f.id === filterId && f.type === filterType ? { ...f, locked: !f.locked } : f
+      )
+    );
+  };
+
+  // Remove a filter
+  const removeFilter = (filterId: string, filterType: string) => {
+    setActiveFilters((prev) =>
+      prev.filter((f) => !(f.id === filterId && f.type === filterType))
+    );
+  };
 
   // Auto-clean legacy overrides to ensure we use the correct hardcoded ID
   useEffect(() => {
@@ -300,42 +445,154 @@ function App() {
     }
   };
 
-  const switchMode = (mode: "SPEED" | "REASONING" | "CONSENSUS") => {
-    setQuickMode(mode);
-    if (mode === "SPEED") {
-      setAiConfig({
+  // Go Deeper: Run deep multi-angle research on current results
+  const handleGoDeeper = async () => {
+    if (!lastSearchQuery.trim() || !user) return;
+
+    setIsDeepening(true);
+    try {
+      const deepConfig = {
         ...aiConfig,
-        model: "gemini-3-pro-preview",
-        searchDepth: "STANDARD",
-        activeModels: undefined,
-      } as any);
-    } else if (mode === "REASONING") {
-      setAiConfig({
-        ...aiConfig,
-        model: "gemini-3-pro-preview",
-        searchDepth: "DEEP",
-        activeModels: undefined,
-      } as any);
-    } else if (mode === "CONSENSUS") {
-      setAiConfig({
-        ...aiConfig,
-        model: "gemini-3-pro-preview",
-        searchDepth: "DEEP",
-        activeModels: ["GOOGLE", "OPENAI", "ANTHROPIC"],
-      } as any);
+        searchDepth: "DEEP" as const,
+      };
+      const deepResults = await identifyFaultFromQuery(
+        lastSearchQuery,
+        selectedImage,
+        deepConfig
+      );
+
+      // Merge with existing, prioritizing deep results
+      const existingIds = new Set(faults.map((r) => r.code + r.manufacturer));
+      const newOnes = deepResults.filter(
+        (r) => !existingIds.has(r.code + r.manufacturer)
+      );
+
+      // Update existing results with deeper info, add new ones
+      const enhanced = faults.map(f => {
+        const deepMatch = deepResults.find(d => d.code === f.code && d.manufacturer === f.manufacturer);
+        if (deepMatch) {
+          return {
+            ...f,
+            ...deepMatch,
+            source: "Deep Research",
+          };
+        }
+        return f;
+      });
+
+      setFaults([...enhanced, ...newOnes]);
+      setResearchDepth("deep");
+    } catch (e) {
+      console.error("Deep research failed", e);
+    } finally {
+      setIsDeepening(false);
+    }
+  };
+
+  // Verify: Run adversarial verification pass
+  const handleVerify = async () => {
+    if (faults.length === 0 || !user) return;
+
+    setIsVerifying(true);
+    try {
+      const { generateViaGateway } = await import("./services/llmGateway");
+
+      // Verify each fault
+      const verifiedFaults = await Promise.all(
+        faults.map(async (fault) => {
+          const verifyPrompt = `
+You are a senior elevator engineer reviewing this diagnosis. Be critical and thorough.
+
+Fault: ${fault.code} - ${fault.title}
+Manufacturer: ${fault.manufacturer}
+Description: ${fault.description}
+Causes: ${fault.possibleCauses?.join(", ")}
+Solutions: ${fault.solutions?.join(", ")}
+
+Review for:
+1. Technical accuracy
+2. Missing safety warnings
+3. Common misdiagnoses for this code
+4. Additional steps that might be needed
+
+Return JSON: { "confidence": 0-100, "warnings": ["string"], "additionalSteps": ["string"], "verified": true }`;
+
+          try {
+            const response = await generateViaGateway(
+              verifyPrompt,
+              "You are a QA engineer for elevator diagnostics.",
+              aiConfig,
+              true
+            );
+            const cleanJson = response.text.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+            const verification = JSON.parse(cleanJson);
+
+            return {
+              ...fault,
+              source: `Verified (${verification.confidence}% confidence)`,
+              solutions: [
+                ...fault.solutions,
+                ...(verification.additionalSteps || []),
+              ],
+              communityContributions: [
+                ...(fault.communityContributions || []),
+                ...(verification.warnings || []).map((w: string, i: number) => ({
+                  id: `verify-${Date.now()}-${i}`,
+                  text: `⚠️ ${w}`,
+                  author: "AI Verification",
+                  timestamp: Date.now(),
+                  votes: 0,
+                  aiStatus: "CAUTION" as const,
+                })),
+              ],
+            };
+          } catch {
+            return fault;
+          }
+        })
+      );
+
+      setFaults(verifiedFaults);
+      setResearchDepth("verified");
+    } catch (e) {
+      console.error("Verification failed", e);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
   const handleSearch = async (overrideQuery?: string) => {
-    const q = overrideQuery || searchQuery;
-    if (!q.trim() && !selectedImage) return;
+    const rawQuery = overrideQuery || searchQuery;
+    if (!rawQuery.trim() && !selectedImage && activeFilters.length === 0) return;
+
+    // Build full query with active filters prepended
+    const filterParts: string[] = [];
+    const manufacturerFilter = activeFilters.find((f) => f.type === "manufacturer");
+    const equipmentFilter = activeFilters.find((f) => f.type === "equipment");
+
+    if (manufacturerFilter) filterParts.push(manufacturerFilter.name);
+    if (equipmentFilter) filterParts.push(equipmentFilter.name);
+
+    const q = [...filterParts, rawQuery.trim()].filter(Boolean).join(" ");
+    if (!q && !selectedImage) return;
 
     setIsSearching(true);
     setFaults([]);
+    setResearchDepth("quick");
+    setLastSearchQuery(q);
+
+    // Clear unlocked filters after search (locked ones persist)
+    setActiveFilters((prev) => prev.filter((f) => f.locked));
 
     try {
       const localResults = searchLocalKnowledgeBase(q);
       setFaults(localResults);
+
+      // Always use quick/standard config for initial search
+      const quickConfig = {
+        ...aiConfig,
+        searchDepth: "STANDARD" as const,
+      };
 
       if (
         user &&
@@ -344,7 +601,7 @@ function App() {
         const aiResults = await identifyFaultFromQuery(
           q,
           selectedImage,
-          aiConfig
+          quickConfig
         );
         const existingIds = new Set(
           localResults.map((r) => r.code + r.manufacturer)
@@ -558,44 +815,48 @@ function App() {
 
         {view === "SEARCH" && (
           <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 md:p-8">
-            {/* Mode Selector */}
-            <div className="flex justify-center gap-2 mb-6">
-              <div className="flex bg-industrial-900 border border-industrial-700 p-1.5 rounded-lg gap-1">
-                <button
-                  onClick={() => switchMode("SPEED")}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-md transition-all text-xs font-bold uppercase tracking-wider ${
-                    quickMode === "SPEED"
-                      ? "bg-industrial-800 border border-safety-500 text-safety-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
-                      : "text-industrial-500 hover:text-industrial-300 hover:bg-industrial-800/50"
-                  }`}
-                >
-                  <Zap className="w-3.5 h-3.5" /> Speed
-                </button>
-                <button
-                  onClick={() => switchMode("REASONING")}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-md transition-all text-xs font-bold uppercase tracking-wider ${
-                    quickMode === "REASONING"
-                      ? "bg-industrial-800 border border-blue-500 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                      : "text-industrial-500 hover:text-industrial-300 hover:bg-industrial-800/50"
-                  }`}
-                >
-                  <Brain className="w-3.5 h-3.5" /> Reasoning
-                </button>
-                <button
-                  onClick={() => switchMode("CONSENSUS")}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-md transition-all text-xs font-bold uppercase tracking-wider ${
-                    quickMode === "CONSENSUS"
-                      ? "bg-industrial-800 border border-purple-500 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.15)]"
-                      : "text-industrial-500 hover:text-industrial-300 hover:bg-industrial-800/50"
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5" /> Consensus
-                </button>
-              </div>
-            </div>
-
             <div className="flex flex-col gap-4 mb-8">
-              <div className="relative group max-w-4xl mx-auto w-full">
+              {/* Active Filter Chips */}
+              {activeFilters.length > 0 && (
+                <div className="flex flex-wrap gap-2 max-w-4xl mx-auto w-full justify-center">
+                  {activeFilters.map((filter) => (
+                    <div
+                      key={`${filter.type}-${filter.id}`}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        filter.type === "manufacturer"
+                          ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
+                          : "bg-purple-600/20 text-purple-400 border border-purple-500/30"
+                      }`}
+                    >
+                      <span>{filter.name}</span>
+                      <button
+                        onClick={() => toggleFilterLock(filter.id, filter.type)}
+                        className={`p-0.5 rounded transition-colors ${
+                          filter.locked
+                            ? "text-yellow-400 hover:text-yellow-300"
+                            : "text-industrial-500 hover:text-industrial-400"
+                        }`}
+                        title={filter.locked ? "Unlock (won't persist)" : "Lock (will persist)"}
+                      >
+                        {filter.locked ? (
+                          <Lock className="w-3.5 h-3.5" />
+                        ) : (
+                          <Unlock className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => removeFilter(filter.id, filter.type)}
+                        className="p-0.5 text-industrial-500 hover:text-red-400 transition-colors"
+                        title="Remove filter"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="relative group max-w-4xl mx-auto w-full" ref={suggestionsRef}>
                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                   <Search
                     className={`w-6 h-6 ${
@@ -608,22 +869,52 @@ function App() {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    detectRecognizedTerms(e.target.value);
+                  }}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  placeholder="Enter fault code (e.g. Kone 169)"
-                  className="w-full bg-industrial-800/50 border border-industrial-600/50 text-white text-lg rounded-2xl pl-14 pr-40 py-5 focus:outline-none focus:border-industrial-500 focus:ring-1 focus:ring-industrial-500/50 transition-all shadow-2xl placeholder-industrial-600 font-medium"
+                  placeholder={activeFilters.length > 0 ? "Enter fault code..." : "Try: KONE L F505 · Otis E 169"}
+                  className="w-full bg-industrial-800/50 border border-industrial-600/50 text-white text-base md:text-lg rounded-2xl pl-14 pr-36 md:pr-44 py-4 md:py-5 focus:outline-none focus:border-industrial-500 focus:ring-1 focus:ring-industrial-500/50 transition-all shadow-2xl placeholder-industrial-600 font-medium"
                 />
 
-                <div className="absolute right-2.5 top-2.5 bottom-2.5 flex items-center gap-2">
+                {/* Autocomplete Dropdown */}
+                {showSuggestions && suggestionMatches.length > 0 && (
+                  <div className="absolute z-50 w-full mt-2 bg-industrial-800 border border-industrial-600/50 rounded-xl shadow-2xl overflow-hidden">
+                    <div className="px-3 py-2 text-xs text-industrial-500 border-b border-industrial-700">
+                      Recognized terms — click to add as filter
+                    </div>
+                    {suggestionMatches.map((match) => (
+                      <button
+                        key={`${match.type}-${match.id}`}
+                        onClick={() => handleSelectSuggestion(match)}
+                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-industrial-700/50 transition-colors text-left"
+                      >
+                        <span
+                          className={`px-2 py-0.5 rounded text-xs font-medium ${
+                            match.type === "manufacturer"
+                              ? "bg-blue-600/20 text-blue-400"
+                              : "bg-purple-600/20 text-purple-400"
+                          }`}
+                        >
+                          {match.type === "manufacturer" ? "MFR" : "TYPE"}
+                        </span>
+                        <span className="text-white font-medium">{match.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="absolute right-2 md:right-2.5 top-2 md:top-2.5 bottom-2 md:bottom-2.5 flex items-center gap-1.5 md:gap-2">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className={`p-2.5 rounded-xl transition-colors ${
+                    className={`p-2 md:p-2.5 rounded-lg md:rounded-xl transition-colors ${
                       selectedImage
                         ? "bg-purple-600 text-white"
                         : "bg-industrial-800/80 text-industrial-400 hover:text-white hover:bg-industrial-700"
                     }`}
                   >
-                    <ImageIcon className="w-5 h-5" />
+                    <ImageIcon className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                   <input
                     type="file"
@@ -635,26 +926,26 @@ function App() {
 
                   <button
                     onClick={toggleVoiceSearch}
-                    className={`p-2.5 rounded-xl transition-all ${
+                    className={`p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all ${
                       isListening
                         ? "bg-red-500 text-white animate-pulse"
                         : "bg-industrial-800/80 text-industrial-400 hover:text-white hover:bg-industrial-700"
                     }`}
                   >
                     {isListening ? (
-                      <Mic className="w-5 h-5" />
+                      <Mic className="w-4 h-4 md:w-5 md:h-5" />
                     ) : (
-                      <MicOff className="w-5 h-5" />
+                      <MicOff className="w-4 h-4 md:w-5 md:h-5" />
                     )}
                   </button>
 
                   <button
                     onClick={() => handleSearch()}
                     disabled={isSearching}
-                    className="bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-6 rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 active:scale-95"
+                    className="bg-blue-600 hover:bg-blue-500 text-white py-2 md:py-2.5 px-4 md:px-6 rounded-lg md:rounded-xl font-bold text-sm md:text-base transition-all disabled:opacity-50 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 active:scale-95"
                   >
                     {isSearching ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
                     ) : (
                       "Analyze"
                     )}
@@ -713,29 +1004,160 @@ function App() {
                       }}
                     />
                   ))}
+
+                  {/* Progressive Research Actions */}
+                  {user && !isSearching && (
+                    <div className="flex flex-col items-center gap-3 pt-6 pb-4 border-t border-industrial-800">
+                      {/* Research Depth Indicator */}
+                      <div className="flex items-center gap-2 text-xs text-industrial-500">
+                        <div className={`w-2 h-2 rounded-full ${researchDepth === "quick" ? "bg-safety-500" : "bg-industrial-600"}`} />
+                        <span className={researchDepth === "quick" ? "text-industrial-400" : "text-industrial-600"}>Quick</span>
+                        <div className="w-8 h-px bg-industrial-700" />
+                        <div className={`w-2 h-2 rounded-full ${researchDepth === "deep" ? "bg-blue-500" : "bg-industrial-600"}`} />
+                        <span className={researchDepth === "deep" ? "text-industrial-400" : "text-industrial-600"}>Deep</span>
+                        <div className="w-8 h-px bg-industrial-700" />
+                        <div className={`w-2 h-2 rounded-full ${researchDepth === "verified" ? "bg-green-500" : "bg-industrial-600"}`} />
+                        <span className={researchDepth === "verified" ? "text-industrial-400" : "text-industrial-600"}>Verified</span>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-3">
+                        {researchDepth === "quick" && (
+                          <button
+                            onClick={handleGoDeeper}
+                            disabled={isDeepening}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600/20 border border-blue-500/50 text-blue-400 rounded-lg text-sm font-medium hover:bg-blue-600/30 transition-all disabled:opacity-50"
+                          >
+                            {isDeepening ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Researching...
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="w-4 h-4" />
+                                Go Deeper
+                              </>
+                            )}
+                          </button>
+                        )}
+
+                        {researchDepth === "deep" && (
+                          <button
+                            onClick={handleVerify}
+                            disabled={isVerifying}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-green-600/20 border border-green-500/50 text-green-400 rounded-lg text-sm font-medium hover:bg-green-600/30 transition-all disabled:opacity-50"
+                          >
+                            {isVerifying ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Verifying...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4" />
+                                Verify Results
+                              </>
+                            )}
+                          </button>
+                        )}
+
+                        {researchDepth === "verified" && (
+                          <div className="flex items-center gap-2 px-4 py-2.5 bg-green-600/10 border border-green-500/30 text-green-400 rounded-lg text-sm">
+                            <CheckCircle className="w-4 h-4" />
+                            Results Verified
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Helper Text */}
+                      <p className="text-xs text-industrial-600 text-center max-w-md">
+                        {researchDepth === "quick" && "Want more detail? Go Deeper runs multi-angle research."}
+                        {researchDepth === "deep" && "Verify runs a critical review to catch errors and add safety notes."}
+                        {researchDepth === "verified" && "Results have been cross-checked for accuracy."}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 !isSearching && (
-                  <div className="h-full flex flex-col items-center justify-center text-industrial-500 opacity-50">
-                    <div className="w-20 h-20 rounded-full bg-industrial-800 border-2 border-industrial-700 flex items-center justify-center mb-4">
-                      <Zap className="w-8 h-8 text-industrial-600" />
+                  <div className="h-full flex flex-col items-center justify-center text-industrial-500">
+                    <div className="w-20 h-20 rounded-full bg-industrial-800 border-2 border-industrial-700 flex items-center justify-center mb-4 opacity-50">
+                      <Search className="w-8 h-8 text-industrial-600" />
                     </div>
-                    <p>No Exact Matches Found</p>
-                    <p className="text-xs max-w-xs text-center mt-2">
-                      Try a broader search or ensure the code is correct. You
-                      can also create a new record manually.
+                    <p className="opacity-50">Enter a fault code to begin</p>
+                    <p className="text-xs max-w-xs text-center mt-2 opacity-50">
+                      Search returns quick results first. You can then go deeper
+                      or verify for more thorough analysis.
                     </p>
+                    <p className="text-xs text-industrial-600 mt-3">
+                      Try: <span className="text-industrial-500">"KONE L F505"</span> · <span className="text-industrial-500">"Otis E 169"</span> · <span className="text-industrial-500">"Schindler door fault"</span>
+                    </p>
+                    <p className="text-[10px] text-industrial-700 mt-1">
+                      L = Lift/Elevator · E = Escalator
+                    </p>
+
+                    {/* How it works */}
+                    <div className="mt-8 max-w-sm text-center space-y-3">
+                      <p className="text-xs text-industrial-600 uppercase tracking-wider font-medium mb-4">How it works</p>
+                      <div className="flex items-center justify-center gap-3 text-xs text-industrial-600">
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="w-8 h-8 rounded-full bg-safety-500/20 flex items-center justify-center">
+                            <Zap className="w-4 h-4 text-safety-500" />
+                          </div>
+                          <span>Quick</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-industrial-700" />
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                            <Brain className="w-4 h-4 text-blue-400" />
+                          </div>
+                          <span>Deep</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-industrial-700" />
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <CheckCircle className="w-4 h-4 text-green-400" />
+                          </div>
+                          <span>Verify</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )
               )}
               {isSearching && faults.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20">
-                  <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                  <div className="text-blue-400 font-bold animate-pulse">
-                    Running Deep Research Agent...
+                  <div className="w-12 h-12 border-4 border-safety-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <div className="text-safety-500 font-bold animate-pulse">
+                    Searching...
                   </div>
                   <div className="text-xs text-industrial-400 mt-2">
-                    Connecting via {aiConfig.provider}...
+                    Checking local database and AI
+                  </div>
+                </div>
+              )}
+
+              {isDeepening && (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <div className="text-blue-400 font-bold animate-pulse">
+                    Running Deep Research...
+                  </div>
+                  <div className="text-xs text-industrial-400 mt-2">
+                    Analyzing from multiple angles
+                  </div>
+                </div>
+              )}
+
+              {isVerifying && (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <div className="text-green-400 font-bold animate-pulse">
+                    Verifying Results...
+                  </div>
+                  <div className="text-xs text-industrial-400 mt-2">
+                    Cross-checking for accuracy
                   </div>
                 </div>
               )}

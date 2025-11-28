@@ -22,7 +22,7 @@ const cleanJsonOutput = (text: string): string => {
   const startObj = clean.indexOf('{');
   const startArr = clean.indexOf('[');
   const isArray = (startArr !== -1 && (startObj === -1 || startArr < startObj));
-  
+
   if (isArray) {
     const end = clean.lastIndexOf(']');
     if (startArr !== -1 && end !== -1) clean = clean.substring(startArr, end + 1);
@@ -33,25 +33,44 @@ const cleanJsonOutput = (text: string): string => {
   return clean;
 };
 
+/**
+ * Expand equipment type shortcuts in query
+ * L = Lift/Elevator, E = Escalator
+ * Example: "KONE L F505" -> "KONE Elevator F505"
+ */
+const expandQueryShortcuts = (query: string): string => {
+  // Match patterns like "BRAND L CODE" or "BRAND E CODE"
+  // Case insensitive, handles spaces
+  return query
+    .replace(/\b([A-Za-z]+)\s+L\s+/gi, '$1 Elevator ')
+    .replace(/\b([A-Za-z]+)\s+E\s+/gi, '$1 Escalator ')
+    // Also handle standalone L/E at start
+    .replace(/^L\s+/i, 'Elevator ')
+    .replace(/^E\s+/i, 'Escalator ');
+};
+
 // --- CORE EXPORTS ---
 
 export const identifyFaultFromQuery = async (
-    query: string, 
-    imageBase64?: string | null, 
+    query: string,
+    imageBase64?: string | null,
     config?: AIConfig
 ): Promise<FaultRecord[]> => {
-    
+
+    // Expand shortcuts: "KONE L F505" -> "KONE Elevator F505"
+    const expandedQuery = expandQueryShortcuts(query);
+
     // 1. Check for Deep Research Mode
     if (config?.searchDepth === 'DEEP') {
-        const deepResult = await performDeepResearch(query, config || { provider: 'GOOGLE', model: 'gemini-3-pro-preview', searchDepth: 'DEEP', minSources: 3 });
+        const deepResult = await performDeepResearch(expandedQuery, config || { provider: 'GOOGLE', model: 'gemini-3-pro-preview', searchDepth: 'DEEP', minSources: 3 });
         return deepResult ? [deepResult] : [];
     }
 
     // 2. Standard Search via Gateway (Supports all providers)
     // If there is an image, we MUST use Gemini (other providers via generic gateway might not support image yet in this demo)
-    
+
     const prompt = `
-    Analyze this query: "${query}". 
+    Analyze this query: "${expandedQuery}". 
     Extract technical elevator/escalator fault information.
     Return JSON matching: { code, title, manufacturer, model, equipmentType, description, possibleCauses[], solutions[], severity }.
     If uncertain, return { "code": "UNKNOWN" ... }.
