@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from .models import (
     DocumentMetadata,
@@ -152,9 +152,9 @@ class GeminiExtractor:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Filter out exceptions and log them
-        valid_results = []
+        valid_results: list[ExtractionResult] = []
         for doc, result in zip(documents, results):
-            if isinstance(result, Exception):
+            if isinstance(result, BaseException):
                 logger.error("Failed to extract %s: %s", doc.filename, result)
             else:
                 valid_results.append(result)
@@ -163,7 +163,7 @@ class GeminiExtractor:
 
     def _parse_response(
         self,
-        response: dict,
+        response: dict[str, Any],
         document: PDFDocument,
     ) -> ExtractionResult:
         """Parse Gemini response into structured models."""
