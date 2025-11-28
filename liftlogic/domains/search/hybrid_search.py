@@ -11,8 +11,9 @@ Features:
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from .models import RankedResult, SearchQuery, SearchResult
@@ -119,8 +120,13 @@ class HybridSearchEngine:
 
     async def _vector_search(self, query: SearchQuery) -> list[SearchResult]:
         """Execute vector similarity search."""
-        # Generate embedding
-        embedding = self._embedder.encode(query.query)
+        # Generate embedding and convert to numpy array
+        raw_embedding = self._embedder.encode(query.query)
+        # Convert tensor to numpy array if needed (sentence-transformers returns Tensor)
+        if hasattr(raw_embedding, "numpy"):
+            embedding: np.ndarray[Any, Any] = raw_embedding.numpy()
+        else:
+            embedding = cast(np.ndarray[Any, Any], raw_embedding)
 
         # Search FAISS
         faiss_results = await self._faiss.search(embedding, k=query.limit * 2)

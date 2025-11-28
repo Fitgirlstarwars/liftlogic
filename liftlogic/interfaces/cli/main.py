@@ -56,14 +56,18 @@ async def _extract_async(pdf_path: Path, output: Path | None, evaluate: bool) ->
     ) as progress:
         task = progress.add_task("Initializing...", total=None)
 
-        # Initialize components
-        gemini = GeminiClient(api_key=settings.google_api_key)
+        # Initialize components (OAuth/ADC mode - no API key needed)
+        gemini = GeminiClient()
         extractor = GeminiExtractor(gemini)
 
         progress.update(task, description="Extracting from PDF...")
 
         try:
-            result = await extractor.extract(str(pdf_path))
+            # Create PDFDocument from path
+            from liftlogic.domains.extraction import PDFDocument
+
+            pdf_doc = PDFDocument(path=pdf_path, filename=pdf_path.name)
+            result = await extractor.extract(pdf_doc)
 
             console.print("\n[green]Extraction Complete[/green]\n")
 
@@ -75,7 +79,7 @@ async def _extract_async(pdf_path: Path, output: Path | None, evaluate: bool) ->
             table.add_row("Components Found", str(len(result.components)))
             table.add_row("Connections Found", str(len(result.connections)))
             table.add_row("Fault Codes Found", str(len(result.fault_codes)))
-            table.add_row("Page Count", str(result.page_count))
+            table.add_row("Tables Found", str(len(result.tables)))
 
             console.print(table)
 
@@ -92,12 +96,14 @@ async def _extract_async(pdf_path: Path, output: Path | None, evaluate: bool) ->
                 from liftlogic.domains.extraction import ExtractionEvaluator
 
                 evaluator = ExtractionEvaluator(gemini)
-                evaluation = await evaluator.evaluate(result)
+                # Read source text for evaluation
+                source_text = pdf_path.read_text(errors="ignore") if pdf_path.suffix == ".txt" else ""
+                evaluation = await evaluator.evaluate(result, source_text)
 
                 console.print(
                     Panel(
-                        f"[bold]Quality Score:[/bold] {evaluation.get('overall_score', 'N/A')}\n"
-                        f"[bold]Feedback:[/bold] {evaluation.get('feedback', 'N/A')}",
+                        f"[bold]Quality Score:[/bold] {evaluation.overall:.2f}\n"
+                        f"[bold]Completeness:[/bold] {evaluation.completeness:.2f}",
                         title="Evaluation Results",
                     )
                 )
@@ -180,7 +186,8 @@ async def _diagnose_async(
         progress.add_task("Diagnosing...", total=None)
 
         try:
-            gemini = GeminiClient(api_key=settings.google_api_key)
+            # OAuth/ADC mode - no API key needed
+            gemini = GeminiClient()
             agent = FaultDiagnosisAgent(llm_client=gemini)
 
             mode = DiagnosisMode.DETAILED if detailed else DiagnosisMode.QUICK

@@ -102,7 +102,7 @@ class GeminiClient:
         self._rate_lock = asyncio.Lock()
 
         # Model instance (lazy loaded)
-        self._model: genai.GenerativeModel | None = None
+        self._model: genai.GenerativeModel | None = None  # type: ignore[name-defined]
 
         logger.info(
             "GeminiClient initialized (OAuth/ADC mode): model=%s, thinking=%s",
@@ -110,7 +110,7 @@ class GeminiClient:
             self.config.thinking_level.value,
         )
 
-    def _get_model(self) -> genai.GenerativeModel:
+    def _get_model(self) -> genai.GenerativeModel:  # type: ignore[name-defined]
         """Get or create model instance."""
         if self._model is None:
             generation_config: dict[str, Any] = {
@@ -125,9 +125,9 @@ class GeminiClient:
                         "thinking_budget": self._thinking_budget()
                     }
 
-            self._model = genai.GenerativeModel(
+            self._model = genai.GenerativeModel(  # type: ignore[attr-defined]
                 model_name=self.config.model,
-                generation_config=generation_config,
+                generation_config=generation_config,  # type: ignore[arg-type]
             )
         return self._model
 
@@ -227,6 +227,7 @@ class GeminiClient:
         self,
         prompt: str,
         system_instruction: str | None = None,
+        response_schema: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Generate JSON response.
@@ -234,10 +235,13 @@ class GeminiClient:
         Args:
             prompt: User prompt
             system_instruction: Optional system instruction
+            response_schema: Optional JSON schema for response (currently unused)
 
         Returns:
             Parsed JSON dict
         """
+        # Note: response_schema is accepted but not currently used
+        _ = response_schema  # Suppress unused variable warning
         response = await self.generate(
             prompt=prompt,
             system_instruction=system_instruction,
@@ -245,17 +249,19 @@ class GeminiClient:
         )
 
         try:
-            return json.loads(response.text)
+            result: dict[str, Any] = json.loads(response.text)
+            return result
         except json.JSONDecodeError:
             # Try to extract JSON from response
             text = response.text
             start = text.find("{")
             end = text.rfind("}") + 1
             if start >= 0 and end > start:
-                return json.loads(text[start:end])
+                result = json.loads(text[start:end])
+                return result
             raise
 
-    async def upload_file(self, file_path: str | Path) -> genai.File:
+    async def upload_file(self, file_path: str | Path) -> genai.File:  # type: ignore[name-defined]
         """
         Upload file to Gemini File API.
 
@@ -271,13 +277,13 @@ class GeminiClient:
 
         logger.info("Uploading file: %s", file_path.name)
 
-        file = await asyncio.to_thread(genai.upload_file, str(file_path))
+        file = await asyncio.to_thread(genai.upload_file, str(file_path))  # type: ignore[attr-defined]
 
         # Wait for processing
         while file.state.name == "PROCESSING":
             logger.debug("File processing...")
             await asyncio.sleep(2)
-            file = await asyncio.to_thread(genai.get_file, file.name)
+            file = await asyncio.to_thread(genai.get_file, file.name)  # type: ignore[attr-defined]
 
         if file.state.name == "FAILED":
             raise GeminiAPIError(f"File processing failed: {file.state.name}")
@@ -285,10 +291,10 @@ class GeminiClient:
         logger.info("File uploaded: %s", file.uri)
         return file
 
-    async def delete_file(self, file: genai.File) -> None:
+    async def delete_file(self, file: genai.File) -> None:  # type: ignore[name-defined]
         """Delete uploaded file."""
         try:
-            await asyncio.to_thread(genai.delete_file, file.name)
+            await asyncio.to_thread(genai.delete_file, file.name)  # type: ignore[attr-defined]
             logger.debug("Deleted file: %s", file.name)
         except Exception as e:
             logger.warning("Failed to delete file %s: %s", file.name, e)
