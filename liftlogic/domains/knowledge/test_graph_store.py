@@ -10,12 +10,12 @@ from .models import EdgeType, KnowledgeEdge, KnowledgeNode, NodeType
 
 
 @pytest.fixture
-def graph():
+def graph() -> KnowledgeGraphStore:
     """Create a fresh knowledge graph store."""
     return KnowledgeGraphStore()
 
 
-async def test_add_and_get_node(graph: KnowledgeGraphStore):
+async def test_add_and_get_node(graph: KnowledgeGraphStore) -> None:
     """Test adding and retrieving a node."""
     node = KnowledgeNode(
         id="comp_1",
@@ -33,7 +33,7 @@ async def test_add_and_get_node(graph: KnowledgeGraphStore):
     assert retrieved.properties["voltage"] == "24V"
 
 
-async def test_add_edge(graph: KnowledgeGraphStore):
+async def test_add_edge(graph: KnowledgeGraphStore) -> None:
     """Test adding an edge between nodes."""
     # Add nodes first
     await graph.add_node(
@@ -63,7 +63,7 @@ async def test_add_edge(graph: KnowledgeGraphStore):
     assert edge_id == "fault_505->comp_sensor"
 
 
-async def test_get_neighbors(graph: KnowledgeGraphStore):
+async def test_get_neighbors(graph: KnowledgeGraphStore) -> None:
     """Test getting neighboring nodes."""
     # Create a small graph: fault -> component -> document
     await graph.add_node(KnowledgeNode(id="fault", type=NodeType.FAULT_CODE, name="F505"))
@@ -87,7 +87,7 @@ async def test_get_neighbors(graph: KnowledgeGraphStore):
     assert len(neighbors) == 1
 
 
-async def test_find_path(graph: KnowledgeGraphStore):
+async def test_find_path(graph: KnowledgeGraphStore) -> None:
     """Test finding path between nodes."""
     # Create chain: A -> B -> C
     await graph.add_node(KnowledgeNode(id="a", type=NodeType.COMPONENT, name="A"))
@@ -104,7 +104,7 @@ async def test_find_path(graph: KnowledgeGraphStore):
     assert path.nodes[2].id == "c"
 
 
-async def test_find_path_no_path(graph: KnowledgeGraphStore):
+async def test_find_path_no_path(graph: KnowledgeGraphStore) -> None:
     """Test finding path when none exists."""
     await graph.add_node(KnowledgeNode(id="isolated", type=NodeType.COMPONENT, name="Isolated"))
     await graph.add_node(KnowledgeNode(id="other", type=NodeType.COMPONENT, name="Other"))
@@ -113,7 +113,7 @@ async def test_find_path_no_path(graph: KnowledgeGraphStore):
     assert path is None
 
 
-async def test_get_stats(graph: KnowledgeGraphStore):
+async def test_get_stats(graph: KnowledgeGraphStore) -> None:
     """Test getting graph statistics."""
     await graph.add_node(KnowledgeNode(id="c1", type=NodeType.COMPONENT, name="C1"))
     await graph.add_node(KnowledgeNode(id="c2", type=NodeType.COMPONENT, name="C2"))
@@ -128,7 +128,7 @@ async def test_get_stats(graph: KnowledgeGraphStore):
     assert stats.nodes_by_type["fault_code"] == 1
 
 
-async def test_find_fault_by_code(graph: KnowledgeGraphStore):
+async def test_find_fault_by_code(graph: KnowledgeGraphStore) -> None:
     """Test finding fault node by code."""
     await graph.add_node(
         KnowledgeNode(
@@ -145,7 +145,7 @@ async def test_find_fault_by_code(graph: KnowledgeGraphStore):
     assert fault.properties["description"] == "Overcurrent"
 
 
-async def test_load_from_json(graph: KnowledgeGraphStore, tmp_path: Path):
+async def test_load_from_json(graph: KnowledgeGraphStore, tmp_path: Path) -> None:
     """Test loading graph from JSON files."""
     # Create test JSON files
     nodes = [
@@ -195,7 +195,7 @@ async def test_load_from_json(graph: KnowledgeGraphStore, tmp_path: Path):
     assert node.properties["code"] == "100"
 
 
-async def test_get_fault_resolution(graph: KnowledgeGraphStore):
+async def test_get_fault_resolution(graph: KnowledgeGraphStore) -> None:
     """Test getting resolution procedures for a fault."""
     # Create fault and procedure nodes
     await graph.add_node(

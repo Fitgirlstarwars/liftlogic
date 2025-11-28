@@ -2,19 +2,21 @@
 Health Routes - System health and status endpoints.
 """
 
+from typing import Any
+
 from fastapi import APIRouter
 
 router = APIRouter()
 
 
 @router.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy", "service": "liftlogic"}
 
 
 @router.get("/api")
-async def api_info():
+async def api_info() -> dict[str, Any]:
     """API info endpoint."""
     return {
         "name": "LiftLogic API",

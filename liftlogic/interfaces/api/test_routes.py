@@ -1,5 +1,6 @@
 """Tests for API Routes."""
 
+from collections.abc import Generator
 from unittest.mock import AsyncMock
 
 import pytest
@@ -45,7 +46,9 @@ def mock_llm() -> AsyncMock:
 
 
 @pytest.fixture
-def client(mock_sqlite_repo: AsyncMock, mock_knowledge_graph: AsyncMock) -> TestClient:
+def client(
+    mock_sqlite_repo: AsyncMock, mock_knowledge_graph: AsyncMock
+) -> Generator[TestClient, None, None]:
     """Create a test client with mocked dependencies."""
     app = create_app()
 

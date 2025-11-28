@@ -1,5 +1,6 @@
 """Tests for SQLite Repository."""
 
+from collections.abc import AsyncGenerator
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,7 @@ from .repository import SQLiteRepository
 
 
 @pytest.fixture
-async def repo(tmp_path: Path):
+async def repo(tmp_path: Path) -> AsyncGenerator[SQLiteRepository, None]:
     """Create a test repository with temporary database."""
     db_path = tmp_path / "test.db"
     repo = SQLiteRepository(db_path)
@@ -17,7 +18,7 @@ async def repo(tmp_path: Path):
     await repo.close()
 
 
-async def test_initialize_creates_tables(repo: SQLiteRepository):
+async def test_initialize_creates_tables(repo: SQLiteRepository) -> None:
     """Test that initialize creates all required tables."""
     conn = await repo._get_connection()
     cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -28,7 +29,7 @@ async def test_initialize_creates_tables(repo: SQLiteRepository):
     assert "documents_fts" in tables
 
 
-async def test_insert_and_get_document(repo: SQLiteRepository):
+async def test_insert_and_get_document(repo: SQLiteRepository) -> None:
     """Test inserting and retrieving a document."""
     doc_id = await repo.insert_document(
         filename="test_manual.pdf",
@@ -48,7 +49,7 @@ async def test_insert_and_get_document(repo: SQLiteRepository):
     assert "elevator fault codes" in doc["content"]
 
 
-async def test_search_fts(repo: SQLiteRepository):
+async def test_search_fts(repo: SQLiteRepository) -> None:
     """Test full-text search."""
     # Insert test documents
     await repo.insert_document(
@@ -73,7 +74,7 @@ async def test_search_fts(repo: SQLiteRepository):
     assert all(r["manufacturer"] == "Otis" for r in results)
 
 
-async def test_insert_and_get_fault_code(repo: SQLiteRepository):
+async def test_insert_and_get_fault_code(repo: SQLiteRepository) -> None:
     """Test fault code operations."""
     # Insert a document first (for foreign key)
     doc_id = await repo.insert_document(
@@ -105,7 +106,7 @@ async def test_insert_and_get_fault_code(repo: SQLiteRepository):
     assert len(faults) >= 1
 
 
-async def test_get_document_count(repo: SQLiteRepository):
+async def test_get_document_count(repo: SQLiteRepository) -> None:
     """Test document count."""
     initial_count = await repo.get_document_count()
     assert initial_count == 0
@@ -117,7 +118,7 @@ async def test_get_document_count(repo: SQLiteRepository):
     assert count == 2
 
 
-async def test_search_empty_query(repo: SQLiteRepository):
+async def test_search_empty_query(repo: SQLiteRepository) -> None:
     """Test search with empty results."""
     results = await repo.search_fts("nonexistent_term_xyz")
     assert results == []
