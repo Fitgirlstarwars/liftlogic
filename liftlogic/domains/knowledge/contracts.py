@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from .models import KnowledgeNode, KnowledgeEdge, ReasoningPath, CausalChain
+from .models import CausalChain, KnowledgeEdge, KnowledgeNode, ReasoningPath
 
 
 @runtime_checkable

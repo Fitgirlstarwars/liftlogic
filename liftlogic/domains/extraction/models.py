@@ -114,9 +114,9 @@ class QualityScore(BaseModel):
         faithfulness: float,
         completeness: float,
         consistency: float,
-    ) -> "QualityScore":
+    ) -> QualityScore:
         """Compute overall score from individual metrics."""
-        overall = (faithfulness * 0.5 + completeness * 0.3 + consistency * 0.2)
+        overall = faithfulness * 0.5 + completeness * 0.3 + consistency * 0.2
         return cls(
             faithfulness=faithfulness,
             completeness=completeness,

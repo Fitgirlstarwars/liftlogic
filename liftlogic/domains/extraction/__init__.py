@@ -10,16 +10,16 @@ This domain handles:
 """
 
 from .contracts import Extractor, QualityEvaluator
+from .evaluator import ExtractionEvaluator
+from .extractor import GeminiExtractor
 from .models import (
-    ExtractionResult,
-    PDFDocument,
     ExtractedComponent,
     ExtractedConnection,
     ExtractedFaultCode,
     ExtractedTable,
+    ExtractionResult,
+    PDFDocument,
 )
-from .extractor import GeminiExtractor
-from .evaluator import ExtractionEvaluator
 
 __all__ = [
     # Contracts

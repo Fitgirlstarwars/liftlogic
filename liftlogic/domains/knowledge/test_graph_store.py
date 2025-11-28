@@ -1,11 +1,12 @@
 """Tests for Knowledge Graph Store."""
 
-import pytest
 import json
 from pathlib import Path
 
+import pytest
+
 from .graph_store import KnowledgeGraphStore
-from .models import KnowledgeNode, KnowledgeEdge, NodeType, EdgeType
+from .models import EdgeType, KnowledgeEdge, KnowledgeNode, NodeType
 
 
 @pytest.fixture
@@ -35,16 +36,20 @@ async def test_add_and_get_node(graph: KnowledgeGraphStore):
 async def test_add_edge(graph: KnowledgeGraphStore):
     """Test adding an edge between nodes."""
     # Add nodes first
-    await graph.add_node(KnowledgeNode(
-        id="fault_505",
-        type=NodeType.FAULT_CODE,
-        name="F505",
-    ))
-    await graph.add_node(KnowledgeNode(
-        id="comp_sensor",
-        type=NodeType.COMPONENT,
-        name="Door Sensor",
-    ))
+    await graph.add_node(
+        KnowledgeNode(
+            id="fault_505",
+            type=NodeType.FAULT_CODE,
+            name="F505",
+        )
+    )
+    await graph.add_node(
+        KnowledgeNode(
+            id="comp_sensor",
+            type=NodeType.COMPONENT,
+            name="Door Sensor",
+        )
+    )
 
     # Add edge
     edge = KnowledgeEdge(
@@ -65,12 +70,12 @@ async def test_get_neighbors(graph: KnowledgeGraphStore):
     await graph.add_node(KnowledgeNode(id="comp", type=NodeType.COMPONENT, name="Sensor"))
     await graph.add_node(KnowledgeNode(id="doc", type=NodeType.DOCUMENT, name="Manual"))
 
-    await graph.add_edge(KnowledgeEdge(
-        source_id="fault", target_id="comp", type=EdgeType.CAUSED_BY
-    ))
-    await graph.add_edge(KnowledgeEdge(
-        source_id="comp", target_id="doc", type=EdgeType.DOCUMENTED_IN
-    ))
+    await graph.add_edge(
+        KnowledgeEdge(source_id="fault", target_id="comp", type=EdgeType.CAUSED_BY)
+    )
+    await graph.add_edge(
+        KnowledgeEdge(source_id="comp", target_id="doc", type=EdgeType.DOCUMENTED_IN)
+    )
 
     # Get outgoing neighbors
     neighbors = await graph.get_neighbors("fault", direction="out")
@@ -125,12 +130,14 @@ async def test_get_stats(graph: KnowledgeGraphStore):
 
 async def test_find_fault_by_code(graph: KnowledgeGraphStore):
     """Test finding fault node by code."""
-    await graph.add_node(KnowledgeNode(
-        id="fault_2001",
-        type=NodeType.ENTITY,
-        name="Peak value over limit",
-        properties={"code": "2001", "description": "Overcurrent"},
-    ))
+    await graph.add_node(
+        KnowledgeNode(
+            id="fault_2001",
+            type=NodeType.ENTITY,
+            name="Peak value over limit",
+            properties={"code": "2001", "description": "Overcurrent"},
+        )
+    )
 
     fault = await graph.find_fault_by_code("2001")
     assert fault is not None
@@ -142,14 +149,30 @@ async def test_load_from_json(graph: KnowledgeGraphStore, tmp_path: Path):
     """Test loading graph from JSON files."""
     # Create test JSON files
     nodes = [
-        {"entity": "node", "id": "n1", "type": "entity", "label": "Fault",
-         "properties": {"code": "100", "name": "Test Fault"}},
-        {"entity": "node", "id": "n2", "type": "procedure", "label": "Procedure",
-         "properties": {"text": "Reset the system"}},
+        {
+            "entity": "node",
+            "id": "n1",
+            "type": "entity",
+            "label": "Fault",
+            "properties": {"code": "100", "name": "Test Fault"},
+        },
+        {
+            "entity": "node",
+            "id": "n2",
+            "type": "procedure",
+            "label": "Procedure",
+            "properties": {"text": "Reset the system"},
+        },
     ]
     edges = [
-        {"entity": "edge", "source": "n1", "target": "n2",
-         "type": "RESOLVED_BY", "weight": 1.0, "properties": {}},
+        {
+            "entity": "edge",
+            "source": "n1",
+            "target": "n2",
+            "type": "RESOLVED_BY",
+            "weight": 1.0,
+            "properties": {},
+        },
     ]
 
     nodes_file = tmp_path / "nodes.json"
@@ -175,25 +198,31 @@ async def test_load_from_json(graph: KnowledgeGraphStore, tmp_path: Path):
 async def test_get_fault_resolution(graph: KnowledgeGraphStore):
     """Test getting resolution procedures for a fault."""
     # Create fault and procedure nodes
-    await graph.add_node(KnowledgeNode(
-        id="fault",
-        type=NodeType.ENTITY,
-        name="F100",
-        properties={"code": "100"},
-    ))
-    await graph.add_node(KnowledgeNode(
-        id="proc1",
-        type=NodeType.PROCEDURE,
-        name="Reset",
-        properties={"text": "Power cycle the system"},
-    ))
+    await graph.add_node(
+        KnowledgeNode(
+            id="fault",
+            type=NodeType.ENTITY,
+            name="F100",
+            properties={"code": "100"},
+        )
+    )
+    await graph.add_node(
+        KnowledgeNode(
+            id="proc1",
+            type=NodeType.PROCEDURE,
+            name="Reset",
+            properties={"text": "Power cycle the system"},
+        )
+    )
 
     # Add resolution edge
-    await graph.add_edge(KnowledgeEdge(
-        source_id="fault",
-        target_id="proc1",
-        type=EdgeType.RESOLVED_BY,
-    ))
+    await graph.add_edge(
+        KnowledgeEdge(
+            source_id="fault",
+            target_id="proc1",
+            type=EdgeType.RESOLVED_BY,
+        )
+    )
 
     # Get resolutions
     resolutions = await graph.get_fault_resolution("fault")

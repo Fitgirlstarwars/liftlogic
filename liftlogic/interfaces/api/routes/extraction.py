@@ -4,7 +4,7 @@ Extraction Routes - PDF extraction endpoints.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 router = APIRouter()

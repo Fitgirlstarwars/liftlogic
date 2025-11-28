@@ -12,19 +12,19 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from liftlogic.config import get_settings
 
-from .routes import search, extraction, diagnosis, health
+from .deps import cleanup_services, init_services
 from .middleware import (
-    RequestIDMiddleware,
-    LatencyMiddleware,
     ErrorHandlerMiddleware,
+    LatencyMiddleware,
     RateLimitMiddleware,
+    RequestIDMiddleware,
 )
-from .deps import init_services, cleanup_services
+from .routes import diagnosis, extraction, health, search
 
 # Static file paths
 INTERFACES_DIR = Path(__file__).parent.parent
@@ -82,8 +82,8 @@ def create_app() -> FastAPI:
     # 5. CORS (framework middleware)
     # Security: Explicitly list allowed origins instead of "*"
     allowed_origins = [
-        "http://localhost:3000",      # Vite dev server
-        "http://localhost:8000",      # FastAPI (same-origin)
+        "http://localhost:3000",  # Vite dev server
+        "http://localhost:8000",  # FastAPI (same-origin)
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8000",
     ]

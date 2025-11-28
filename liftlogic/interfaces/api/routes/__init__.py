@@ -2,6 +2,6 @@
 API Routes.
 """
 
-from . import health, search, extraction, diagnosis
+from . import diagnosis, extraction, health, search
 
 __all__ = ["health", "search", "extraction", "diagnosis"]

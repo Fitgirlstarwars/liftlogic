@@ -1,7 +1,9 @@
 """Tests for SQLite Repository."""
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from .repository import SQLiteRepository
 
 
@@ -18,9 +20,7 @@ async def repo(tmp_path: Path):
 async def test_initialize_creates_tables(repo: SQLiteRepository):
     """Test that initialize creates all required tables."""
     conn = await repo._get_connection()
-    cursor = await conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='table'"
-    )
+    cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = {row[0] for row in await cursor.fetchall()}
 
     assert "documents" in tables

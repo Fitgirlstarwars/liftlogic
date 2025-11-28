@@ -4,9 +4,9 @@ Orchestration Contracts - Interfaces for orchestration domain.
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable, Any
+from typing import Any, Protocol, runtime_checkable
 
-from .models import Query, RoutingDecision, CachedResponse, PipelineResult
+from .models import CachedResponse, PipelineResult, Query, RoutingDecision
 
 
 @runtime_checkable

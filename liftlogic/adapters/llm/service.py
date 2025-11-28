@@ -13,14 +13,13 @@ Architecture:
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import httpx
 
-from liftlogic.config import get_settings, LLMError
+from liftlogic.config import LLMError, get_settings
 
 if TYPE_CHECKING:
     from liftlogic.interfaces.api.auth import UserContext
@@ -95,14 +94,10 @@ class LLMService:
         """
         if self.provider == "gemini":
             try:
-                return await self._generate_gemini(
-                    prompt, system_instruction, temperature
-                )
+                return await self._generate_gemini(prompt, system_instruction, temperature)
             except Exception as e:
                 logger.warning("Gemini failed, falling back to Ollama: %s", e)
-                return await self._generate_ollama(
-                    prompt, system_instruction, temperature
-                )
+                return await self._generate_ollama(prompt, system_instruction, temperature)
         else:
             return await self._generate_ollama(prompt, system_instruction, temperature)
 
@@ -117,7 +112,9 @@ class LLMService:
             raise LLMError("No user token for Gemini")
 
         # Build request
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+        )
 
         contents = []
         if system_instruction:
@@ -222,9 +219,7 @@ class LLMService:
         system_instruction: str | None = None,
     ) -> dict[str, Any]:
         """Generate JSON response."""
-        json_instruction = (
-            system_instruction or ""
-        ) + "\n\nRespond with valid JSON only."
+        json_instruction = (system_instruction or "") + "\n\nRespond with valid JSON only."
 
         response = await self.generate(prompt, json_instruction)
 
@@ -242,7 +237,7 @@ class LLMService:
             raise
 
 
-async def get_llm_for_user(user: "UserContext | None") -> LLMService:
+async def get_llm_for_user(user: UserContext | None) -> LLMService:
     """
     Get LLM service configured for user.
 

@@ -10,17 +10,16 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .models import (
-    ExtractionResult,
-    PDFDocument,
+    DocumentMetadata,
     ExtractedComponent,
     ExtractedConnection,
     ExtractedFaultCode,
     ExtractedTable,
-    DocumentMetadata,
+    ExtractionResult,
+    PDFDocument,
 )
 
 if TYPE_CHECKING:
@@ -170,24 +169,16 @@ class GeminiExtractor:
         """Parse Gemini response into structured models."""
 
         # Parse components
-        components = [
-            ExtractedComponent(**c) for c in response.get("components", [])
-        ]
+        components = [ExtractedComponent(**c) for c in response.get("components", [])]
 
         # Parse connections
-        connections = [
-            ExtractedConnection(**c) for c in response.get("connections", [])
-        ]
+        connections = [ExtractedConnection(**c) for c in response.get("connections", [])]
 
         # Parse fault codes
-        fault_codes = [
-            ExtractedFaultCode(**f) for f in response.get("fault_codes", [])
-        ]
+        fault_codes = [ExtractedFaultCode(**f) for f in response.get("fault_codes", [])]
 
         # Parse tables
-        tables = [
-            ExtractedTable(**t) for t in response.get("tables", [])
-        ]
+        tables = [ExtractedTable(**t) for t in response.get("tables", [])]
 
         # Parse metadata
         meta_data = response.get("metadata", {})

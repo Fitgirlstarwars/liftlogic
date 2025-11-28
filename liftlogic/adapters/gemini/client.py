@@ -23,23 +23,23 @@ import asyncio
 import json
 import logging
 import time
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any, AsyncIterator
+from typing import Any
 
 import google.generativeai as genai
 from tenacity import (
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
 )
 
 from .models import (
-    GeminiConfig,
-    GeminiRequest,
-    GeminiResponse,
     ExtractionRequest,
     ExtractionResponse,
+    GeminiConfig,
+    GeminiResponse,
     ThinkingLevel,
 )
 
@@ -207,9 +207,7 @@ class GeminiClient:
             # Get usage stats
             usage = getattr(response, "usage_metadata", None)
             prompt_tokens = getattr(usage, "prompt_token_count", 0) if usage else 0
-            completion_tokens = (
-                getattr(usage, "candidates_token_count", 0) if usage else 0
-            )
+            completion_tokens = getattr(usage, "candidates_token_count", 0) if usage else 0
 
             return GeminiResponse(
                 text=text,
@@ -343,18 +341,12 @@ class GeminiClient:
         sections = ["Extract the following from this technical manual:"]
 
         if request.extract_fault_codes:
-            sections.append(
-                "- FAULT CODES: code, description, severity, causes, remedies"
-            )
+            sections.append("- FAULT CODES: code, description, severity, causes, remedies")
         if request.extract_tables:
             sections.append("- TABLES: title, headers, rows")
         if request.extract_schematics:
-            sections.append(
-                "- COMPONENTS: id, name, type, specifications"
-            )
-            sections.append(
-                "- CONNECTIONS: source component, target component, type, label"
-            )
+            sections.append("- COMPONENTS: id, name, type, specifications")
+            sections.append("- CONNECTIONS: source component, target component, type, label")
 
         sections.append(
             "\nReturn as JSON with keys: fault_codes, tables, components, connections, metadata"
@@ -362,9 +354,7 @@ class GeminiClient:
 
         return "\n".join(sections)
 
-    def _parse_extraction_response(
-        self, text: str, pdf_path: Path
-    ) -> ExtractionResponse:
+    def _parse_extraction_response(self, text: str, pdf_path: Path) -> ExtractionResponse:
         """Parse extraction response into structured format."""
         try:
             # Try to parse as JSON

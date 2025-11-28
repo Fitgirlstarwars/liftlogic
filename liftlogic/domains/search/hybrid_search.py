@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 from sentence_transformers import SentenceTransformer
 
-from .models import SearchQuery, SearchResult, RankedResult
+from .models import RankedResult, SearchQuery, SearchResult
 
 if TYPE_CHECKING:
     from liftlogic.adapters.faiss import FAISSIndex

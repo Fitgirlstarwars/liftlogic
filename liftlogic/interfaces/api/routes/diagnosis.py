@@ -13,10 +13,10 @@ from enum import Enum
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from liftlogic.interfaces.api.auth import get_current_user_optional, UserContext
-from liftlogic.interfaces.api.deps import get_sqlite_repository, get_knowledge_graph
-from liftlogic.adapters import get_llm_for_user, SQLiteRepository
+from liftlogic.adapters import SQLiteRepository, get_llm_for_user
 from liftlogic.domains.knowledge import KnowledgeGraphStore
+from liftlogic.interfaces.api.auth import UserContext, get_current_user_optional
+from liftlogic.interfaces.api.deps import get_knowledge_graph, get_sqlite_repository
 
 router = APIRouter()
 
@@ -87,7 +87,7 @@ async def diagnose_fault(
         related_nodes = await graph.get_neighbors(fault_node.id)
 
     # Look up in SQLite
-    fault_db_results = await repo.get_fault_code(
+    await repo.get_fault_code(
         request.fault_code,
         request.manufacturer,
     )
@@ -108,31 +108,34 @@ async def diagnose_fault(
 
     if resolution_procedures:
         context_parts.append(
-            "Recovery Procedures:\n" +
-            "\n".join(f"- {p.properties.get('text', p.name)}" for p in resolution_procedures)
+            "Recovery Procedures:\n"
+            + "\n".join(f"- {p.properties.get('text', p.name)}" for p in resolution_procedures)
         )
 
     if test_procedures:
         context_parts.append(
-            "Testing Procedures:\n" +
-            "\n".join(f"- {p.properties.get('text', p.name)}" for p in test_procedures)
+            "Testing Procedures:\n"
+            + "\n".join(f"- {p.properties.get('text', p.name)}" for p in test_procedures)
         )
 
     if request.symptoms:
-        context_parts.append(
-            "Reported Symptoms:\n" +
-            "\n".join(f"- {s}" for s in request.symptoms)
-        )
+        context_parts.append("Reported Symptoms:\n" + "\n".join(f"- {s}" for s in request.symptoms))
 
     # Get LLM for diagnosis
     llm = await get_llm_for_user(user)
 
-    context = "\n\n".join(context_parts) if context_parts else "No documentation found for this fault code."
+    context = (
+        "\n\n".join(context_parts)
+        if context_parts
+        else "No documentation found for this fault code."
+    )
 
     # Generate diagnosis based on mode
     if request.mode == DiagnosisMode.QUICK:
         prompt = f"Briefly explain fault code {request.fault_code}. Context:\n{context}"
-        system_instruction = "You are an elevator technician. Provide a brief explanation in 2-3 sentences."
+        system_instruction = (
+            "You are an elevator technician. Provide a brief explanation in 2-3 sentences."
+        )
     elif request.mode == DiagnosisMode.SAFETY:
         prompt = f"Analyze the safety implications of fault code {request.fault_code}. Context:\n{context}"
         system_instruction = "You are an elevator safety expert. Focus on safety risks, hazards, and critical precautions."
@@ -152,9 +155,21 @@ Provide:
     response = await llm.generate(prompt, system_instruction)
 
     # Extract structured data from fault node if available
-    description = fault_node.properties.get("description", response.text[:200]) if fault_node else response.text[:200]
-    causes = [fault_node.properties.get("reason", "")] if fault_node and fault_node.properties.get("reason") else []
-    remedies = [p.properties.get("text", p.name) for p in resolution_procedures] if resolution_procedures else []
+    description = (
+        fault_node.properties.get("description", response.text[:200])
+        if fault_node
+        else response.text[:200]
+    )
+    causes = (
+        [fault_node.properties.get("reason", "")]
+        if fault_node and fault_node.properties.get("reason")
+        else []
+    )
+    remedies = (
+        [p.properties.get("text", p.name) for p in resolution_procedures]
+        if resolution_procedures
+        else []
+    )
     related_components = [n.name for n in related_nodes if n.type.value != "procedure"][:5]
 
     # Determine severity from operation field
@@ -214,8 +229,8 @@ async def safety_analysis(
     response = await llm.generate(
         f"""Analyze this elevator documentation for safety concerns:
 
-Document: {doc.get('filename', 'Unknown')}
-Manufacturer: {doc.get('manufacturer', 'Unknown')}
+Document: {doc.get("filename", "Unknown")}
+Manufacturer: {doc.get("manufacturer", "Unknown")}
 
 Content:
 {content}
@@ -272,8 +287,8 @@ async def maintenance_analysis(
     response = await llm.generate(
         f"""Extract maintenance schedule from this elevator documentation:
 
-Document: {doc.get('filename', 'Unknown')}
-Manufacturer: {doc.get('manufacturer', 'Unknown')}
+Document: {doc.get("filename", "Unknown")}
+Manufacturer: {doc.get("manufacturer", "Unknown")}
 
 Content:
 {content}

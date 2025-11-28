@@ -10,11 +10,10 @@ Features:
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any
 
-from neo4j import AsyncGraphDatabase, AsyncDriver
+from neo4j import AsyncDriver, AsyncGraphDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -143,11 +142,14 @@ class Neo4jClient:
             CREATE (a)-[r:{relationship_type} $props]->(b)
             RETURN r
         """
-        result = await self.run_query(query, {
-            "from_id": from_id,
-            "to_id": to_id,
-            "props": properties or {},
-        })
+        result = await self.run_query(
+            query,
+            {
+                "from_id": from_id,
+                "to_id": to_id,
+                "props": properties or {},
+            },
+        )
         return result[0]["r"] if result else {}
 
     async def find_path(
@@ -178,10 +180,13 @@ class Neo4jClient:
             )
             RETURN nodes(path) as nodes, relationships(path) as rels
         """
-        result = await self.run_query(query, {
-            "start_id": start_id,
-            "end_id": end_id,
-        })
+        result = await self.run_query(
+            query,
+            {
+                "start_id": start_id,
+                "end_id": end_id,
+            },
+        )
         return result
 
     async def get_related_nodes(
@@ -229,7 +234,6 @@ class Neo4jClient:
             "CREATE CONSTRAINT IF NOT EXISTS FOR (f:FaultCode) REQUIRE f.code IS UNIQUE",
             "CREATE CONSTRAINT IF NOT EXISTS FOR (s:Symptom) REQUIRE s.id IS UNIQUE",
             "CREATE CONSTRAINT IF NOT EXISTS FOR (d:Document) REQUIRE d.id IS UNIQUE",
-
             # Indexes
             "CREATE INDEX IF NOT EXISTS FOR (c:Component) ON (c.name)",
             "CREATE INDEX IF NOT EXISTS FOR (f:FaultCode) ON (f.manufacturer)",

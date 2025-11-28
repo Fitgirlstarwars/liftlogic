@@ -12,20 +12,19 @@ import time
 import uuid
 from typing import TYPE_CHECKING, Any
 
+from .cache import ResponseCacheImpl
 from .models import (
-    Query,
-    QueryType,
     PipelineResult,
     PipelineStep,
+    Query,
 )
 from .router import SmartRouter
-from .cache import ResponseCacheImpl
 
 if TYPE_CHECKING:
     from liftlogic.adapters.gemini import GeminiClient
-    from liftlogic.domains.search import HybridSearchEngine
-    from liftlogic.domains.knowledge import KnowledgeGraphStore, GraphReasoner
     from liftlogic.domains.diagnosis import FaultDiagnosisAgent
+    from liftlogic.domains.knowledge import GraphReasoner, KnowledgeGraphStore
+    from liftlogic.domains.search import HybridSearchEngine
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +165,7 @@ class QueryPipeline:
 
         # Extract fault code from query
         import re
+
         fault_match = re.search(r"\b[A-Z]{1,3}[-_]?\d{2,4}\b", query.text)
         fault_code = fault_match.group() if fault_match else query.text
 
@@ -229,6 +229,7 @@ class QueryPipeline:
             step_start = time.time()
             try:
                 from liftlogic.domains.search import SearchQuery
+
                 search_query = SearchQuery(query=query.text)
                 results = await self._search.search(search_query)
 
@@ -318,8 +319,7 @@ class QueryPipeline:
         response = await self._generate_response(
             query.text,
             system_prompt=(
-                "You are a helpful elevator technician assistant. "
-                "Be friendly and concise."
+                "You are a helpful elevator technician assistant. Be friendly and concise."
             ),
         )
 

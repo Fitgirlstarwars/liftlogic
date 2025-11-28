@@ -12,14 +12,12 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
-from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.panel import Panel
-from rich.markdown import Markdown
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 app = typer.Typer(
     name="liftlogic",
@@ -32,7 +30,7 @@ console = Console()
 @app.command()
 def extract(
     pdf_path: Path = typer.Argument(..., help="Path to PDF file"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output JSON path"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Output JSON path"),
     evaluate: bool = typer.Option(False, "--evaluate", "-e", help="Run quality evaluation"),
 ) -> None:
     """Extract structured data from elevator PDF documents."""
@@ -43,10 +41,10 @@ def extract(
     asyncio.run(_extract_async(pdf_path, output, evaluate))
 
 
-async def _extract_async(pdf_path: Path, output: Optional[Path], evaluate: bool) -> None:
+async def _extract_async(pdf_path: Path, output: Path | None, evaluate: bool) -> None:
     """Async extraction implementation."""
-    from liftlogic.config import get_settings
     from liftlogic.adapters.gemini import GeminiClient
+    from liftlogic.config import get_settings
     from liftlogic.domains.extraction import GeminiExtractor
 
     settings = get_settings()
@@ -84,6 +82,7 @@ async def _extract_async(pdf_path: Path, output: Optional[Path], evaluate: bool)
             # Save output if requested
             if output:
                 import json
+
                 output.write_text(json.dumps(result.model_dump(), indent=2))
                 console.print(f"\n[green]Saved to:[/green] {output}")
 
@@ -91,14 +90,17 @@ async def _extract_async(pdf_path: Path, output: Optional[Path], evaluate: bool)
             if evaluate:
                 progress.update(task, description="Evaluating quality...")
                 from liftlogic.domains.extraction import ExtractionEvaluator
+
                 evaluator = ExtractionEvaluator(gemini)
                 evaluation = await evaluator.evaluate(result)
 
-                console.print(Panel(
-                    f"[bold]Quality Score:[/bold] {evaluation.get('overall_score', 'N/A')}\n"
-                    f"[bold]Feedback:[/bold] {evaluation.get('feedback', 'N/A')}",
-                    title="Evaluation Results",
-                ))
+                console.print(
+                    Panel(
+                        f"[bold]Quality Score:[/bold] {evaluation.get('overall_score', 'N/A')}\n"
+                        f"[bold]Feedback:[/bold] {evaluation.get('feedback', 'N/A')}",
+                        title="Evaluation Results",
+                    )
+                )
 
         except Exception as e:
             console.print(f"[red]Error:[/red] {e}")
@@ -118,16 +120,15 @@ def search(
 async def _search_async(query: str, limit: int, semantic: bool) -> None:
     """Async search implementation."""
     from liftlogic.config import get_settings
-    from liftlogic.domains.search import SearchQuery
 
-    settings = get_settings()
+    get_settings()
 
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Searching...", total=None)
+        progress.add_task("Searching...", total=None)
 
         try:
             # Note: In full implementation, would initialize HybridSearchEngine
@@ -135,12 +136,14 @@ async def _search_async(query: str, limit: int, semantic: bool) -> None:
             console.print(f"\n[yellow]Searching for:[/yellow] {query}")
             console.print(f"[dim]Limit: {limit}, Semantic: {semantic}[/dim]\n")
 
-            console.print(Panel(
-                "Search engine initialization requires database setup.\n"
-                "Run `liftlogic init` to set up the database first.",
-                title="Setup Required",
-                style="yellow",
-            ))
+            console.print(
+                Panel(
+                    "Search engine initialization requires database setup.\n"
+                    "Run `liftlogic init` to set up the database first.",
+                    title="Setup Required",
+                    style="yellow",
+                )
+            )
 
         except Exception as e:
             console.print(f"[red]Error:[/red] {e}")
@@ -150,7 +153,7 @@ async def _search_async(query: str, limit: int, semantic: bool) -> None:
 @app.command()
 def diagnose(
     fault_code: str = typer.Argument(..., help="Fault code to diagnose"),
-    manufacturer: Optional[str] = typer.Option(None, "--manufacturer", "-m", help="Manufacturer"),
+    manufacturer: str | None = typer.Option(None, "--manufacturer", "-m", help="Manufacturer"),
     detailed: bool = typer.Option(False, "--detailed", "-d", help="Detailed analysis"),
 ) -> None:
     """Diagnose an elevator fault code."""
@@ -159,13 +162,13 @@ def diagnose(
 
 async def _diagnose_async(
     fault_code: str,
-    manufacturer: Optional[str],
+    manufacturer: str | None,
     detailed: bool,
 ) -> None:
     """Async diagnosis implementation."""
-    from liftlogic.config import get_settings
     from liftlogic.adapters.gemini import GeminiClient
-    from liftlogic.domains.diagnosis import FaultDiagnosisAgent, DiagnosisMode
+    from liftlogic.config import get_settings
+    from liftlogic.domains.diagnosis import DiagnosisMode, FaultDiagnosisAgent
 
     settings = get_settings()
 
@@ -174,7 +177,7 @@ async def _diagnose_async(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Diagnosing...", total=None)
+        progress.add_task("Diagnosing...", total=None)
 
         try:
             gemini = GeminiClient(api_key=settings.google_api_key)
@@ -238,7 +241,7 @@ def serve(
     """Start the API server."""
     import uvicorn
 
-    console.print(f"\n[green]Starting LiftLogic API server[/green]")
+    console.print("\n[green]Starting LiftLogic API server[/green]")
     console.print(f"[dim]http://{host}:{port}[/dim]\n")
 
     uvicorn.run(
@@ -252,13 +255,13 @@ def serve(
 
 @app.command()
 def init(
-    data_dir: Optional[Path] = typer.Option(None, "--data", "-d", help="Data directory"),
+    data_dir: Path | None = typer.Option(None, "--data", "-d", help="Data directory"),
 ) -> None:
     """Initialize LiftLogic database and indexes."""
     asyncio.run(_init_async(data_dir))
 
 
-async def _init_async(data_dir: Optional[Path]) -> None:
+async def _init_async(data_dir: Path | None) -> None:
     """Async initialization."""
     from liftlogic.config import get_settings
 
@@ -281,7 +284,7 @@ async def _init_async(data_dir: Optional[Path]) -> None:
 
         # Initialize SQLite
         progress.update(task, description="Initializing SQLite database...")
-        db_path = data_path / "liftlogic.db"
+        data_path / "liftlogic.db"
         # In full implementation: create tables
         progress.advance(task)
 
@@ -302,6 +305,7 @@ async def _init_async(data_dir: Optional[Path]) -> None:
 def version() -> None:
     """Show version information."""
     from liftlogic import __version__
+
     console.print(f"LiftLogic v{__version__}")
 
 

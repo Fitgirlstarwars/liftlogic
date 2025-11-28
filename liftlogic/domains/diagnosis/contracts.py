@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from .models import FaultDiagnosis, SafetyRisk, MaintenanceTask, DiagnosisMode
+from .models import DiagnosisMode, FaultDiagnosis, MaintenanceTask, SafetyRisk
 
 
 @runtime_checkable

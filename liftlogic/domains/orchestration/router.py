@@ -12,7 +12,7 @@ import re
 import uuid
 from typing import TYPE_CHECKING
 
-from .models import Query, QueryType, RoutingDecision, ModelTier
+from .models import ModelTier, Query, QueryType, RoutingDecision
 
 if TYPE_CHECKING:
     from liftlogic.adapters.gemini import GeminiClient
@@ -175,8 +175,7 @@ class SmartRouter:
 
         # Check for conversational markers
         if any(
-            text_lower.startswith(word)
-            for word in ["hi", "hello", "hey", "thanks", "thank you"]
+            text_lower.startswith(word) for word in ["hi", "hello", "hey", "thanks", "thank you"]
         ):
             return QueryType.CONVERSATIONAL
 
