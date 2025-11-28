@@ -7,6 +7,7 @@ Run with: uvicorn liftlogic.interfaces.api.main:app --reload
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan manager."""
     settings = get_settings()
     logger.info("Starting LiftLogic API...")
@@ -117,7 +118,7 @@ def create_app() -> FastAPI:
 
         @app.get("/app")
         @app.get("/app/{path:path}")
-        async def serve_react_app(request: Request, path: str = ""):
+        async def serve_react_app(request: Request, path: str = "") -> FileResponse:
             """Serve the React technician portal (LiftLogic app)."""
             return FileResponse(WEB_DIST_DIR / "index.html")
 
@@ -131,17 +132,17 @@ def create_app() -> FastAPI:
         )
 
         @app.get("/styles.css")
-        async def serve_landing_css():
+        async def serve_landing_css() -> FileResponse:
             """Serve landing page CSS."""
             return FileResponse(LANDING_DIR / "styles.css", media_type="text/css")
 
         @app.get("/script.js")
-        async def serve_landing_js():
+        async def serve_landing_js() -> FileResponse:
             """Serve landing page JavaScript."""
             return FileResponse(LANDING_DIR / "script.js", media_type="application/javascript")
 
         @app.get("/")
-        async def serve_landing_page():
+        async def serve_landing_page() -> FileResponse:
             """Serve the main ARPRO landing page."""
             return FileResponse(LANDING_DIR / "index.html")
 

@@ -9,6 +9,7 @@ Authentication:
 from __future__ import annotations
 
 from enum import Enum
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
@@ -58,7 +59,7 @@ async def diagnose_fault(
     user: UserContext | None = Depends(get_current_user_optional),
     repo: SQLiteRepository = Depends(get_sqlite_repository),
     graph: KnowledgeGraphStore = Depends(get_knowledge_graph),
-):
+) -> DiagnosisResponse:
     """
     Diagnose a fault code.
 
@@ -199,7 +200,7 @@ async def safety_analysis(
     document_id: int,
     user: UserContext | None = Depends(get_current_user_optional),
     repo: SQLiteRepository = Depends(get_sqlite_repository),
-):
+) -> dict[str, Any]:
     """
     Perform safety audit on a document.
 
@@ -258,7 +259,7 @@ async def maintenance_analysis(
     document_id: int,
     user: UserContext | None = Depends(get_current_user_optional),
     repo: SQLiteRepository = Depends(get_sqlite_repository),
-):
+) -> dict[str, Any]:
     """
     Generate maintenance schedule from a document.
 

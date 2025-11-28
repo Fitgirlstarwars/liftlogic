@@ -4,6 +4,8 @@ Extraction Routes - PDF extraction endpoints.
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
@@ -21,7 +23,7 @@ class ExtractionResponse(BaseModel):
 
 
 @router.post("/extract", response_model=ExtractionResponse)
-async def extract_pdf(file: UploadFile = File(...)):
+async def extract_pdf(file: UploadFile = File(...)) -> ExtractionResponse:
     """
     Extract structured data from a PDF document.
 
@@ -45,7 +47,7 @@ async def extract_pdf(file: UploadFile = File(...)):
 
 
 @router.get("/status/{job_id}")
-async def get_extraction_status(job_id: str):
+async def get_extraction_status(job_id: str) -> dict[str, Any]:
     """Get status of an extraction job."""
     # TODO: Implement job tracking
     return {

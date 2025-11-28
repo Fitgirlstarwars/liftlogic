@@ -8,6 +8,8 @@ Authentication:
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
@@ -53,7 +55,7 @@ async def search(
     request: SearchRequest,
     user: UserContext | None = Depends(get_current_user_optional),
     repo: SQLiteRepository = Depends(get_sqlite_repository),
-):
+) -> SearchResponse:
     """
     Search documents with optional AI-powered answers.
 
@@ -123,7 +125,7 @@ async def get_fault_code(
     user: UserContext | None = Depends(get_current_user_optional),
     repo: SQLiteRepository = Depends(get_sqlite_repository),
     graph: KnowledgeGraphStore = Depends(get_knowledge_graph),
-):
+) -> dict[str, Any]:
     """
     Look up a specific fault code with AI explanation.
 
