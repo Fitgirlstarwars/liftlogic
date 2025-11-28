@@ -1,7 +1,8 @@
 """Tests for API Routes."""
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 from .main import create_app
@@ -86,10 +87,11 @@ def test_search_endpoint_limit_validation(client: TestClient):
 
 def test_diagnosis_endpoint_structure(client: TestClient):
     """Test diagnosis endpoint returns correct structure."""
-    with patch("liftlogic.interfaces.api.routes.diagnosis.get_sqlite_repository") as mock_repo, \
-         patch("liftlogic.interfaces.api.routes.diagnosis.get_knowledge_graph") as mock_graph, \
-         patch("liftlogic.interfaces.api.routes.diagnosis.get_llm_for_user") as mock_llm:
-
+    with (
+        patch("liftlogic.interfaces.api.routes.diagnosis.get_sqlite_repository") as mock_repo,
+        patch("liftlogic.interfaces.api.routes.diagnosis.get_knowledge_graph") as mock_graph,
+        patch("liftlogic.interfaces.api.routes.diagnosis.get_llm_for_user") as mock_llm,
+    ):
         # Mock repository
         mock_repo_instance = AsyncMock()
         mock_repo_instance.get_fault_code.return_value = []

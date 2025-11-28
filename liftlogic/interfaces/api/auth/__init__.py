@@ -10,7 +10,7 @@ Flow:
     Backend: Verify token → get user email → use token for Gemini
 """
 
-from .deps import get_current_user, get_current_user_optional, UserContext
+from .deps import UserContext, get_current_user, get_current_user_optional
 from .encryption import TokenEncryption, encryption
 
 __all__ = [

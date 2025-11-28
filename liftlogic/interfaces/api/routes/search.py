@@ -11,10 +11,10 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from liftlogic.interfaces.api.auth import get_current_user_optional, UserContext
-from liftlogic.interfaces.api.deps import get_sqlite_repository, get_knowledge_graph
-from liftlogic.adapters import get_llm_for_user, SQLiteRepository
+from liftlogic.adapters import SQLiteRepository, get_llm_for_user
 from liftlogic.domains.knowledge import KnowledgeGraphStore
+from liftlogic.interfaces.api.auth import UserContext, get_current_user_optional
+from liftlogic.interfaces.api.deps import get_knowledge_graph, get_sqlite_repository
 
 router = APIRouter()
 
@@ -94,10 +94,12 @@ async def search(
         llm_provider = llm.provider
 
         # Build context from search results
-        context = "\n\n".join([
-            f"[{r.filename}]: {r.content}"
-            for r in results[:5]  # Use top 5 results as context
-        ])
+        context = "\n\n".join(
+            [
+                f"[{r.filename}]: {r.content}"
+                for r in results[:5]  # Use top 5 results as context
+            ]
+        )
 
         response = await llm.generate(
             f"Based on the following elevator documentation, answer this query: {request.query}\n\nDocumentation:\n{context}",
@@ -164,14 +166,14 @@ async def get_fault_code(
 
     if resolution_procedures:
         context_parts.append(
-            "Recovery procedures:\n" +
-            "\n".join(f"- {p.properties.get('text', p.name)}" for p in resolution_procedures)
+            "Recovery procedures:\n"
+            + "\n".join(f"- {p.properties.get('text', p.name)}" for p in resolution_procedures)
         )
 
     if test_procedures:
         context_parts.append(
-            "Testing procedures:\n" +
-            "\n".join(f"- {p.properties.get('text', p.name)}" for p in test_procedures)
+            "Testing procedures:\n"
+            + "\n".join(f"- {p.properties.get('text', p.name)}" for p in test_procedures)
         )
 
     # Get LLM for AI explanation
@@ -181,9 +183,9 @@ async def get_fault_code(
     context = "\n\n".join(context_parts) if context_parts else "No specific documentation found."
 
     response = await llm.generate(
-        f"Based on this documentation, explain elevator fault code {code}" +
-        (f" for {manufacturer}" if manufacturer else "") +
-        f":\n\n{context}",
+        f"Based on this documentation, explain elevator fault code {code}"
+        + (f" for {manufacturer}" if manufacturer else "")
+        + f":\n\n{context}",
         system_instruction="You are an elevator technician assistant. Provide a practical explanation of the fault code, its causes, and recommended actions. Be concise.",
     )
 
@@ -199,8 +201,8 @@ async def get_fault_code(
             "resolution_procedures": [
                 p.properties.get("text", p.name) for p in resolution_procedures
             ],
-            "test_procedures": [
-                p.properties.get("text", p.name) for p in test_procedures
-            ],
-        } if fault_node else None,
+            "test_procedures": [p.properties.get("text", p.name) for p in test_procedures],
+        }
+        if fault_node
+        else None,
     }

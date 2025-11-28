@@ -14,13 +14,13 @@ import logging
 import time
 import uuid
 from collections import defaultdict
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from liftlogic.config.errors import LiftLogicError, ErrorCode
+from liftlogic.config.errors import ErrorCode, LiftLogicError
 
 logger = logging.getLogger(__name__)
 
@@ -164,26 +164,20 @@ def _error_code_to_status(code: ErrorCode) -> int:
         ErrorCode.DIAGNOSIS_INVALID_CODE: 400,
         ErrorCode.VALIDATION_ERROR: 400,
         ErrorCode.KNOWLEDGE_INVALID_EDGE: 400,
-
         # 401 Unauthorized
         ErrorCode.SECURITY_UNAUTHORIZED: 401,
         ErrorCode.LLM_AUTH_FAILED: 401,
-
         # 403 Forbidden
         ErrorCode.SECURITY_FORBIDDEN: 403,
-
         # 404 Not Found
         ErrorCode.NOT_FOUND: 404,
         ErrorCode.KNOWLEDGE_NODE_NOT_FOUND: 404,
         ErrorCode.SEARCH_NO_RESULTS: 404,
-
         # 408 Timeout
         ErrorCode.EXTRACTION_TIMEOUT: 408,
-
         # 429 Rate Limited
         ErrorCode.SECURITY_RATE_LIMITED: 429,
         ErrorCode.LLM_RATE_LIMITED: 429,
-
         # 503 Service Unavailable
         ErrorCode.LLM_UNAVAILABLE: 503,
         ErrorCode.SEARCH_INDEX_UNAVAILABLE: 503,

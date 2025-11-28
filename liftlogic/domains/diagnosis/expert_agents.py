@@ -9,21 +9,21 @@ from __future__ import annotations
 
 import logging
 import uuid
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from .models import (
-    FaultDiagnosis,
-    SafetyRisk,
-    MaintenanceTask,
-    DiagnosisMode,
-    Severity,
-    ExpertOpinion,
     ConsensusResult,
+    DiagnosisMode,
+    ExpertOpinion,
+    FaultDiagnosis,
+    MaintenanceTask,
+    SafetyRisk,
+    Severity,
 )
 
 if TYPE_CHECKING:
     from liftlogic.adapters.gemini import GeminiClient
-    from liftlogic.domains.knowledge import KnowledgeGraphStore, GraphReasoner
+    from liftlogic.domains.knowledge import GraphReasoner, KnowledgeGraphStore
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ class FaultDiagnosisAgent:
 
 Manufacturer: {manufacturer}
 Model: {model}
-Reported Symptoms: {', '.join(symptoms) if symptoms else 'None specified'}
+Reported Symptoms: {", ".join(symptoms) if symptoms else "None specified"}
 {graph_context}
 
 Analyze this fault and provide:
@@ -199,9 +199,7 @@ Focus on most likely cause and primary remedy."""
         return FaultDiagnosis(
             fault_code=fault_code,
             description=response.get("description", ""),
-            severity=severity_map.get(
-                response.get("severity", "medium"), Severity.MEDIUM
-            ),
+            severity=severity_map.get(response.get("severity", "medium"), Severity.MEDIUM),
             causes=response.get("causes", []),
             root_cause=response.get("root_cause"),
             remedies=response.get("remedies", []),
@@ -232,7 +230,7 @@ class SafetyAnalysisAgent:
 
 {document_content[:8000]}  # Truncate for context window
 
-Focus areas: {', '.join(focus_areas) if focus_areas else 'All safety aspects'}
+Focus areas: {", ".join(focus_areas) if focus_areas else "All safety aspects"}
 
 Identify:
 1. Critical safety risks requiring immediate attention
@@ -311,7 +309,7 @@ For each risk provide:
 
 {document_content[:8000]}
 
-Standards to check: {', '.join(standards)}
+Standards to check: {", ".join(standards)}
 
 Evaluate:
 1. Documented safety procedures
@@ -379,7 +377,7 @@ class MaintenanceAgent:
 
 {component_list}
 
-Usage Data: {usage_data if usage_data else 'Standard usage assumed'}
+Usage Data: {usage_data if usage_data else "Standard usage assumed"}
 
 For each component, recommend:
 1. Maintenance interval (daily/weekly/monthly/quarterly/annually)
@@ -504,7 +502,7 @@ class ExpertConsensus:
                 )
                 opinions.append(
                     ExpertOpinion(
-                        agent_name=f"Expert_{i+1}",
+                        agent_name=f"Expert_{i + 1}",
                         diagnosis=diagnosis,
                         confidence=diagnosis.confidence,
                         reasoning=diagnosis.reasoning_chain or "",
@@ -594,9 +592,7 @@ class ExpertConsensus:
             return 1.0
 
         # Compare severity ratings
-        severities = [
-            o.diagnosis.severity for o in opinions if o.diagnosis
-        ]
+        severities = [o.diagnosis.severity for o in opinions if o.diagnosis]
         if not severities:
             return 0.0
 
@@ -625,23 +621,15 @@ class ExpertConsensus:
             return disagreements
 
         # Check severity disagreements
-        severities = set(
-            o.diagnosis.severity.value for o in opinions if o.diagnosis
-        )
+        severities = set(o.diagnosis.severity.value for o in opinions if o.diagnosis)
         if len(severities) > 1:
-            disagreements.append(
-                f"Severity assessment varies: {', '.join(severities)}"
-            )
+            disagreements.append(f"Severity assessment varies: {', '.join(severities)}")
 
         # Check root cause disagreements
         root_causes = set(
-            o.diagnosis.root_cause
-            for o in opinions
-            if o.diagnosis and o.diagnosis.root_cause
+            o.diagnosis.root_cause for o in opinions if o.diagnosis and o.diagnosis.root_cause
         )
         if len(root_causes) > 1:
-            disagreements.append(
-                f"Root cause differs: {', '.join(str(rc) for rc in root_causes)}"
-            )
+            disagreements.append(f"Root cause differs: {', '.join(str(rc) for rc in root_causes)}")
 
         return disagreements

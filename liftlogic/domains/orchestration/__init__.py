@@ -8,17 +8,17 @@ This domain handles:
 - Multi-step reasoning coordination
 """
 
-from .contracts import QueryRouter, ResponseCache, PipelineOrchestrator
+from .cache import ResponseCacheImpl
+from .contracts import PipelineOrchestrator, QueryRouter, ResponseCache
 from .models import (
+    CachedResponse,
+    PipelineResult,
     Query,
     QueryType,
     RoutingDecision,
-    CachedResponse,
-    PipelineResult,
 )
-from .router import SmartRouter
-from .cache import ResponseCacheImpl
 from .pipeline import QueryPipeline
+from .router import SmartRouter
 
 __all__ = [
     # Contracts

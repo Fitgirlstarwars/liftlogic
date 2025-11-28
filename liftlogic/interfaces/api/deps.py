@@ -10,8 +10,8 @@ from functools import lru_cache
 from pathlib import Path
 
 from liftlogic.adapters.sqlite import SQLiteRepository
-from liftlogic.domains.knowledge import KnowledgeGraphStore
 from liftlogic.config import get_settings
+from liftlogic.domains.knowledge import KnowledgeGraphStore
 
 
 @lru_cache

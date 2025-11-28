@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from .models import SearchQuery, SearchResult, RankedResult
+from .models import RankedResult, SearchQuery, SearchResult
 
 
 @runtime_checkable

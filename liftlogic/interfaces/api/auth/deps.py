@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 import httpx
 from fastapi import Header, HTTPException
@@ -38,7 +37,7 @@ class UserContext:
 
 
 async def get_current_user(
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
 ) -> UserContext:
     """
     Verify Google OAuth token and return user context.
@@ -71,17 +70,13 @@ async def get_current_user(
 
             if response.status_code != 200:
                 logger.warning("Token validation failed: %s", response.text)
-                raise HTTPException(
-                    status_code=401, detail="Invalid authentication token"
-                )
+                raise HTTPException(status_code=401, detail="Invalid authentication token")
 
             user_info = response.json()
             email = user_info.get("email")
 
             if not email:
-                raise HTTPException(
-                    status_code=401, detail="Token does not contain email"
-                )
+                raise HTTPException(status_code=401, detail="Token does not contain email")
 
             return UserContext(
                 email=email,
@@ -98,7 +93,7 @@ async def get_current_user(
 
 
 async def get_current_user_optional(
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
 ) -> UserContext | None:
     """
     Get user context if authenticated, None otherwise.

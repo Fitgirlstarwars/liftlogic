@@ -8,19 +8,19 @@ This domain handles:
 - Multi-expert consensus
 """
 
-from .contracts import DiagnosisAgent, SafetyAnalyzer, MaintenancePlanner
-from .models import (
-    FaultDiagnosis,
-    SafetyRisk,
-    MaintenanceTask,
-    DiagnosisMode,
-    Severity,
-)
+from .contracts import DiagnosisAgent, MaintenancePlanner, SafetyAnalyzer
 from .expert_agents import (
-    FaultDiagnosisAgent,
-    SafetyAnalysisAgent,
-    MaintenanceAgent,
     ExpertConsensus,
+    FaultDiagnosisAgent,
+    MaintenanceAgent,
+    SafetyAnalysisAgent,
+)
+from .models import (
+    DiagnosisMode,
+    FaultDiagnosis,
+    MaintenanceTask,
+    SafetyRisk,
+    Severity,
 )
 
 __all__ = [

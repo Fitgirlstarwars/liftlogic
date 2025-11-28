@@ -144,11 +144,13 @@ class FAISSIndex:
         results = []
         for score, idx in zip(scores[0], indices[0]):
             if idx >= 0 and idx < len(self._metadata):
-                results.append({
-                    "score": float(score),
-                    "index": int(idx),
-                    "metadata": self._metadata[idx],
-                })
+                results.append(
+                    {
+                        "score": float(score),
+                        "index": int(idx),
+                        "metadata": self._metadata[idx],
+                    }
+                )
 
         return results
 

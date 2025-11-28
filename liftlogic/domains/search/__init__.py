@@ -9,9 +9,9 @@ This domain handles:
 - RAG answer generation
 """
 
-from .contracts import SearchEngine, Ranker
-from .models import SearchQuery, SearchResult, RankedResult
+from .contracts import Ranker, SearchEngine
 from .hybrid_search import HybridSearchEngine
+from .models import RankedResult, SearchQuery, SearchResult
 
 __all__ = [
     "SearchEngine",

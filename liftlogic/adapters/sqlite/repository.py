@@ -10,7 +10,6 @@ Features:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 from pathlib import Path
@@ -165,9 +164,7 @@ class SQLiteRepository:
         """Get document by ID."""
         conn = await self._get_connection()
 
-        cursor = await conn.execute(
-            "SELECT * FROM documents WHERE id = ?", (doc_id,)
-        )
+        cursor = await conn.execute("SELECT * FROM documents WHERE id = ?", (doc_id,))
         row = await cursor.fetchone()
 
         if row:
@@ -269,9 +266,7 @@ class SQLiteRepository:
                 (code, manufacturer),
             )
         else:
-            cursor = await conn.execute(
-                "SELECT * FROM fault_codes WHERE code = ?", (code,)
-            )
+            cursor = await conn.execute("SELECT * FROM fault_codes WHERE code = ?", (code,))
 
         rows = await cursor.fetchall()
         return [dict(row) for row in rows]

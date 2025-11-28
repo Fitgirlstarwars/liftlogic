@@ -9,13 +9,13 @@ This domain handles:
 """
 
 from .contracts import GraphStore, Reasoner
-from .models import (
-    KnowledgeNode,
-    KnowledgeEdge,
-    ReasoningPath,
-    CausalChain,
-)
 from .graph_store import KnowledgeGraphStore
+from .models import (
+    CausalChain,
+    KnowledgeEdge,
+    KnowledgeNode,
+    ReasoningPath,
+)
 from .reasoner import GraphReasoner
 
 __all__ = [

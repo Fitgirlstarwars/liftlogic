@@ -14,12 +14,12 @@ from typing import TYPE_CHECKING
 import networkx as nx
 
 from .models import (
-    KnowledgeNode,
-    KnowledgeEdge,
-    ReasoningPath,
-    NodeType,
     EdgeType,
     GraphStats,
+    KnowledgeEdge,
+    KnowledgeNode,
+    NodeType,
+    ReasoningPath,
 )
 
 if TYPE_CHECKING:
@@ -56,7 +56,7 @@ class KnowledgeGraphStore:
     async def add_node(self, node: KnowledgeNode) -> str:
         """Add a node to the graph."""
         # Filter out conflicting properties (name is already set)
-        props = {k: v for k, v in node.properties.items() if k not in ('name', 'type')}
+        props = {k: v for k, v in node.properties.items() if k not in ("name", "type")}
         self._graph.add_node(
             node.id,
             node_type=node.type.value,

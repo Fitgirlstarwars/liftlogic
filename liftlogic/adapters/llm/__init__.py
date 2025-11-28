@@ -17,6 +17,6 @@ Usage:
     response = await llm.generate("What is fault code 505?")
 """
 
-from .service import LLMService, get_llm_for_user, LLMResponse
+from .service import LLMResponse, LLMService, get_llm_for_user
 
 __all__ = ["LLMService", "get_llm_for_user", "LLMResponse"]

@@ -10,17 +10,18 @@ import logging
 from typing import TYPE_CHECKING
 
 from .models import (
-    KnowledgeNode,
-    KnowledgeEdge,
-    ReasoningPath,
     CausalChain,
-    NodeType,
     EdgeType,
+    KnowledgeEdge,
+    KnowledgeNode,
+    NodeType,
+    ReasoningPath,
 )
 
 if TYPE_CHECKING:
-    from .graph_store import KnowledgeGraphStore
     from liftlogic.adapters.gemini import GeminiClient
+
+    from .graph_store import KnowledgeGraphStore
 
 logger = logging.getLogger(__name__)
 
@@ -110,9 +111,7 @@ class GraphReasoner:
         # Generate explanation if LLM available
         explanation = ""
         if self._llm and paths:
-            explanation = await self._generate_explanation(
-                symptom_or_fault, root_causes, paths
-            )
+            explanation = await self._generate_explanation(symptom_or_fault, root_causes, paths)
 
         return CausalChain(
             symptom=symptom_or_fault,
@@ -324,7 +323,7 @@ class GraphReasoner:
         # Factors: number of paths, path lengths, edge weights
         num_paths = len(paths)
         avg_length = sum(p.length for p in paths) / num_paths
-        avg_weight = sum(p.total_weight for p in paths) / num_paths if paths else 0
+        sum(p.total_weight for p in paths) / num_paths if paths else 0
 
         # Shorter paths and more paths = higher confidence
         length_factor = 1.0 / (1.0 + avg_length * 0.2)
@@ -351,10 +350,10 @@ class GraphReasoner:
         prompt = f"""Explain the causal relationship in this elevator fault diagnosis:
 
 Symptom/Fault: {symptom}
-Root Causes Found: {', '.join(root_causes) if root_causes else 'None identified'}
+Root Causes Found: {", ".join(root_causes) if root_causes else "None identified"}
 
 Reasoning Paths:
-{chr(10).join(path_descriptions) if path_descriptions else 'No paths found'}
+{chr(10).join(path_descriptions) if path_descriptions else "No paths found"}
 
 Provide a clear, technician-friendly explanation of:
 1. Why these components might cause this symptom

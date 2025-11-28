@@ -7,11 +7,11 @@ All domains use this adapter for LLM operations.
 
 from .client import GeminiClient
 from .models import (
+    ExtractionRequest,
+    ExtractionResponse,
     GeminiConfig,
     GeminiRequest,
     GeminiResponse,
-    ExtractionRequest,
-    ExtractionResponse,
 )
 
 __all__ = [

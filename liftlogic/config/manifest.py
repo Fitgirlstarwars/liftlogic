@@ -23,7 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -35,9 +35,7 @@ class ManifestItem:
     path: str
     checksum: str
     bytes: int | None = None
-    created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 @dataclass
@@ -57,9 +55,7 @@ class ArtifactManifest:
     dim: int | None = None  # Vector dimension
     source: str | None = None  # Source dataset or commit hash
     schema_version: str = "1.0.0"
-    created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     items: list[ManifestItem] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
