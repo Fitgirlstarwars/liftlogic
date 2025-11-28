@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+.eggs/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+liftlogic/interfaces/web/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Data (will be created at runtime)
+data/
+*.db
+*.sqlite
+
+# Environment
+.env
+.env.local
+*.local.json
+
+# Build artifacts
+dist/
+build/
+*.egg
+
+# Documentation
+*.md
+!README.md
+
+# Tests
+tests/
+**/test_*.py
+**/*_test.py
