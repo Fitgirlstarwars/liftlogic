@@ -699,7 +699,7 @@ Return JSON: { "confidence": 0-100, "warnings": ["string"], "additionalSteps": [
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-industrial-900 text-white overflow-hidden font-sans selection:bg-blue-500/30">
       {/* Top Header - Fixed full width */}
-      <header className="fixed top-0 left-0 right-0 w-full h-14 bg-industrial-900 border-b border-industrial-800 flex items-center px-4 z-50">
+      <header className="fixed top-0 left-0 right-0 w-full h-14 bg-industrial-900 border-b border-industrial-800 flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
           <Server className="w-6 h-6 text-safety-500" />
           <span className="font-bold font-mono text-xl tracking-tighter">
@@ -707,12 +707,70 @@ Return JSON: { "confidence": 0-100, "warnings": ["string"], "additionalSteps": [
             <span className="text-white">LOGIC</span>
           </span>
         </div>
-        <button
-          onClick={handleLogout}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-industrial-400 hover:text-white p-2"
-        >
-          <LogOut className="w-5 h-5" />
-        </button>
+
+        {/* User Profile & Sync Status */}
+        <div className="flex items-center gap-3">
+          {/* Sync Status Indicator */}
+          {!user.isGuest && (
+            <div className="flex items-center gap-2">
+              {isSyncing ? (
+                <div className="flex items-center gap-1.5 text-xs text-blue-400">
+                  <RefreshCcw className="w-3.5 h-3.5 animate-spin" />
+                  <span className="hidden sm:inline">Syncing...</span>
+                </div>
+              ) : lastSyncTime ? (
+                <div className="flex items-center gap-1.5 text-xs text-green-500" title={`Last sync: ${lastSyncTime.toLocaleTimeString()}`}>
+                  <Cloud className="w-3.5 h-3.5" />
+                  <Check className="w-3 h-3" />
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-xs text-industrial-500" title="Not synced">
+                  <Cloud className="w-3.5 h-3.5" />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* User Profile */}
+          <div className="flex items-center gap-2">
+            {user.photoLink ? (
+              <img
+                src={user.photoLink}
+                alt={user.displayName}
+                className="w-8 h-8 rounded-full border-2 border-industrial-700"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-industrial-700 flex items-center justify-center">
+                {user.isGuest ? (
+                  <UserIcon className="w-4 h-4 text-industrial-400" />
+                ) : (
+                  <UserCheck className="w-4 h-4 text-safety-500" />
+                )}
+              </div>
+            )}
+            <div className="hidden sm:flex flex-col">
+              <span className="text-xs font-medium text-white leading-tight truncate max-w-[120px]">
+                {user.displayName}
+              </span>
+              {user.isGuest ? (
+                <span className="text-[10px] text-yellow-500">Guest Mode</span>
+              ) : (
+                <span className="text-[10px] text-industrial-500 truncate max-w-[120px]">
+                  {user.emailAddress}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="text-industrial-400 hover:text-white p-2 ml-1"
+            title="Sign out"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
       </header>
       {/* Spacer for fixed header */}
       <div className="h-14 flex-shrink-0" />

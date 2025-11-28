@@ -79,9 +79,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
               onClick={onGuestLogin}
               className="w-full py-3.5 px-4 bg-industrial-700 text-industrial-300 font-bold rounded-xl hover:bg-industrial-600 hover:text-white transition-all flex items-center justify-center gap-3 shadow-lg active:scale-[0.98]"
             >
-              <span>Skip Login (Guest Mode)</span>
+              <span>Continue as Guest</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+
+            <p className="text-[10px] text-industrial-500 text-center mt-2">
+              Guest mode: Data not synced. Sign in to save your work to Google Drive.
+            </p>
 
             <div className="flex justify-center mt-4">
               <button onClick={() => setShowConfig(true)} className="text-industrial-500 hover:text-white p-2 flex items-center gap-2 text-xs">
