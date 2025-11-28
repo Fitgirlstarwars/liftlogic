@@ -78,6 +78,7 @@ import {
 import {
   initTokenClient,
   signInWithGoogle,
+  silentTokenRefresh,
   getCurrentUserInfo,
   initGapiClient,
   saveUserSession,
@@ -288,6 +289,18 @@ function App() {
       if (saved) {
         setStatusMessage("Restoring Session...");
         setUser(saved);
+
+        // For non-guest users, try to silently refresh the OAuth token
+        if (!saved.isGuest) {
+          setStatusMessage("Refreshing credentials...");
+          const token = await silentTokenRefresh();
+          if (!token) {
+            // Silent refresh failed - user needs to re-login
+            // Keep user info but warn about sync being unavailable
+            console.log("Token refresh failed - Drive sync will be unavailable until re-login");
+          }
+        }
+
         await handlePostLoginInit(saved.id);
         clearTimeout(loadingTimeout);
         return;

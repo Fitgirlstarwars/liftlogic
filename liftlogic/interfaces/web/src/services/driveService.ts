@@ -133,19 +133,19 @@ export const signInWithGoogle = (): Promise<string> => {
         reject(new Error(msg));
         return;
     }
-    
+
     try {
         tokenClient.callback = async (resp: any) => {
           if (resp.error !== undefined) {
             reject(resp);
             return;
           }
-          
+
           // Sync token with GAPI for Drive calls
           if (gapiInited && (window as any).gapi?.client) {
               (window as any).gapi.client.setToken({ access_token: resp.access_token });
           }
-          
+
           resolve(resp.access_token);
         };
 
@@ -153,6 +153,45 @@ export const signInWithGoogle = (): Promise<string> => {
     } catch (e) {
         console.error("Sign In Error", e);
         reject(e);
+    }
+  });
+};
+
+/**
+ * Silently refresh the access token (no popup, for session restoration).
+ * Returns null if user interaction is required.
+ */
+export const silentTokenRefresh = (): Promise<string | null> => {
+  return new Promise((resolve) => {
+    if (!tokenClient) {
+        console.log("Token client not ready for silent refresh");
+        resolve(null);
+        return;
+    }
+
+    try {
+        tokenClient.callback = async (resp: any) => {
+          if (resp.error !== undefined) {
+            // Silent refresh failed - user needs to re-authenticate
+            console.log("Silent token refresh failed, user interaction required");
+            resolve(null);
+            return;
+          }
+
+          // Sync token with GAPI for Drive calls
+          if (gapiInited && (window as any).gapi?.client) {
+              (window as any).gapi.client.setToken({ access_token: resp.access_token });
+          }
+
+          console.log("Silent token refresh successful");
+          resolve(resp.access_token);
+        };
+
+        // Request token without consent prompt (silent)
+        tokenClient.requestAccessToken({ prompt: '' });
+    } catch (e) {
+        console.error("Silent refresh error", e);
+        resolve(null);
     }
   });
 };
