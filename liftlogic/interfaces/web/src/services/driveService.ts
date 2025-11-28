@@ -5,8 +5,10 @@ declare var google: any;
 declare var gapi: any;
 
 // Scope for User Info, Drive File access, AND Gemini API Access
-// We add 'generative-language' to allow using the user's credentials for AI models
-const SCOPES = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/cloud-platform';
+// Required scopes for Generative Language API:
+// - cloud-platform: General GCP access
+// - generative-language.retriever: Required for Gemini API text generation
+const SCOPES = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.retriever';
 
 const USER_STORAGE_KEY = 'LIFT_LOGIC_USER_SESSION';
 const DB_FILE_NAME = 'liftlogic_secure_db.lock'; 

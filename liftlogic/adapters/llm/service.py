@@ -143,6 +143,20 @@ class LLMService:
             if response.status_code == 429:
                 raise LLMError("Gemini quota exceeded", {"code": "QUOTA_EXCEEDED"})
 
+            if response.status_code == 403:
+                error_text = response.text.lower()
+                if "scope" in error_text or "insufficient" in error_text:
+                    logger.error(
+                        "Gemini scope error: User token missing required scopes. "
+                        "Ensure 'generative-language.retriever' scope is requested."
+                    )
+                    raise LLMError(
+                        "Gemini API requires additional OAuth scopes",
+                        {"code": "SCOPE_INSUFFICIENT", "hint": "Re-login to grant new permissions"},
+                    )
+                logger.error("Gemini 403 forbidden: %s", response.text)
+                raise LLMError(f"Gemini API access denied: {response.status_code}")
+
             if response.status_code != 200:
                 logger.error("Gemini error: %s %s", response.status_code, response.text)
                 raise LLMError(f"Gemini API error: {response.status_code}")
