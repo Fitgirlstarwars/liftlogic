@@ -57,9 +57,15 @@ dmypy.json
 # Ruff
 .ruff_cache/
 
-# Data directories
-data/
-*.db
+# Data directories - use /* to allow un-ignoring specific items
+data/*
+# EXCEPTIONS: Include essential deployment data (37MB total)
+!data/processed/
+!data/graph/
+!data/index.json
+!data/liftlogic.db
+
+# Database files (except the main production one above)
 *.sqlite
 *.sqlite3
 

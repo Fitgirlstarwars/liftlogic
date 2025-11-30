@@ -27,10 +27,10 @@ liftlogic/interfaces/web/node_modules/
 .git/
 .gitignore
 
-# Data (will be created at runtime)
-data/
-*.db
-*.sqlite
+# Data - INCLUDE in build (37MB, essential for search)
+!data/liftlogic.db
+!data/graph/
+!data/index.json
 
 # Environment
 .env

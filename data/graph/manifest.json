@@ -1,0 +1,7 @@
+{
+  "source_file": "/Users/fender/Desktop/liftlogic-new-gemini/data/graph_production.jsonl",
+  "destination": "/Users/fender/Desktop/liftlogic-new-claude/data/graph/graph_production.jsonl",
+  "nodes": 1043,
+  "edges": 432,
+  "format": "jsonl"
+}
